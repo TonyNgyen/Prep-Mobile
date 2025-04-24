@@ -9,9 +9,11 @@ import {
   Keyboard,
   ScrollView,
   StyleSheet,
+  FlatList,
 } from 'react-native';
 import { supabase } from '~/utils/supabase';
 import { useRouter } from 'expo-router';
+import { Dropdown } from 'react-native-element-dropdown';
 
 type AddIngredientModalProps = {
   visible: boolean;
@@ -148,12 +150,12 @@ export default function AddIngredientModal({
 
   const renderFormField = (label: string, field: keyof FormDataType, required?: boolean) => (
     <View className="my-2 flex-row items-center justify-between" key={label}>
-      <Text className="flex-1 text-base">
+      <Text className="text-md flex-1">
         {label}
         {required && '*'}
       </Text>
       <TextInput
-        className="w-1/3 rounded border border-gray-300 p-2 text-right"
+        className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right"
         placeholder={required ? 'Required' : 'Optional'}
         keyboardType="numeric"
         value={formData[field]?.toString() || ''}
@@ -169,18 +171,36 @@ export default function AddIngredientModal({
           <View
             className="flex-row items-end justify-between border-b border-gray-200 px-4 pb-3"
             style={{ height: headerHeight }}>
-            <Pressable onPress={onClose}>
-              <Text className="text-base text-blue-500">Cancel</Text>
-            </Pressable>
+            {modalPage == 'form' ? (
+              <Pressable onPress={onClose}>
+                <Text className="text-base text-blue-500">X</Text>
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => setModalPage('form')}>
+                <Text className="text-base text-blue-500">{'<'}</Text>
+              </Pressable>
+            )}
+            {/* <Pressable onPress={onClose}>
+              <Text className="text-base text-blue-500">X</Text>
+            </Pressable> */}
             <Text className="text-lg font-semibold">
               {modalPage === 'form' ? 'Add Ingredient' : 'Review'}
             </Text>
-            <Pressable
+            {modalPage == 'form' ? (
+              <Pressable onPress={() => setModalPage('review')}>
+                <Text className="text-base text-blue-500">{">"}</Text>
+              </Pressable>
+            ) : (
+              <Pressable onPress={() => console.log(formData)}>
+                <Text className="text-base text-blue-500">Submit</Text>
+              </Pressable>
+            )}
+            {/* <Pressable
               onPress={() => setModalPage((prev) => (prev === 'form' ? 'review' : 'form'))}>
               <Text className="text-base text-blue-500">
-                {modalPage === 'form' ? 'Next' : 'Back'}
+                {modalPage === 'form' ? 'Next' : 'Submit'}
               </Text>
-            </Pressable>
+            </Pressable> */}
           </View>
 
           <ScrollView className="flex-1 p-4">
@@ -191,20 +211,40 @@ export default function AddIngredientModal({
                   placeholder="Ingredient Name"
                   value={formData.name}
                   onChangeText={(v) => setFormData((prev) => ({ ...prev, name: v }))}
-                  className="mb-4 rounded border border-gray-300 p-2"
+                  className="mb-2 h-[35px] rounded border border-gray-300 p-2"
                 />
 
                 <View className="my-2 flex-row">
                   <View className="w-1/2 pr-1">
                     <TextInput
                       placeholder="Serving Size"
-                      className="rounded-l border border-gray-300 p-2"
+                      className="h-[35px] rounded-l border border-gray-300 p-2"
                       keyboardType="numeric"
                       value={formData.servingSize?.toString() || ''}
                       onChangeText={(v) => handleChange('servingSize', v)}
                     />
                   </View>
-                  <View className="w-1/2 pl-1"></View>
+                  <View className="w-1/2 pl-1">
+                    <Dropdown
+                      style={{
+                        height: 35,
+                        borderColor: '#d1d5db',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        paddingHorizontal: 8,
+                      }}
+                      placeholderStyle={{ color: 'gray' }}
+                      selectedTextStyle={{ color: 'black' }}
+                      data={servingUnits.map((unit) => ({ label: unit, value: unit }))}
+                      labelField="label"
+                      valueField="value"
+                      value={formData.servingUnit}
+                      placeholder="Unit"
+                      onChange={(item) => {
+                        setFormData((prev) => ({ ...prev, servingUnit: item.value }));
+                      }}
+                    />
+                  </View>
                 </View>
 
                 {[
@@ -233,6 +273,36 @@ export default function AddIngredientModal({
                 ].map(([label, field, required]) =>
                   renderFormField(label as string, field as keyof FormDataType, required)
                 )}
+
+                {/* <FlatList
+                  className=""
+                  data={[
+                    ['Servings Per Container', 'servingsPerContainer', true],
+                    ['Price Per Container', 'pricePerContainer'],
+                    ['Calories', 'calories', true],
+                    ['Total Fat (g)', 'totalFat'],
+                    ['Saturated Fat (g)', 'saturatedFat'],
+                    ['Polyunsaturated Fat (g)', 'polyunsaturatedFat'],
+                    ['Monounsaturated Fat (g)', 'monounsaturatedFat'],
+                    ['Trans Fat (g)', 'transFat'],
+                    ['Cholesterol (mg)', 'cholesterol'],
+                    ['Sodium (mg)', 'sodium'],
+                    ['Potassium (mg)', 'potassium'],
+                    ['Total Carbohydrates (g)', 'totalCarbohydrates'],
+                    ['Dietary Fiber (g)', 'dietaryFiber'],
+                    ['Total Sugars (g)', 'totalSugars'],
+                    ['Added Sugars (g)', 'addedSugars'],
+                    ['Sugar Alcohols (g)', 'sugarAlcohols'],
+                    ['Protein (g)', 'protein'],
+                    ['Vitamin A (%)', 'vitaminA'],
+                    ['Vitamin C (%)', 'vitaminC'],
+                    ['Vitamin D (%)', 'vitaminD'],
+                    ['Calcium (%)', 'calcium'],
+                    ['Iron (%)', 'iron'],
+                  ]}
+                  renderItem={({ item }) => <Text>{item[0]}</Text>}
+                  contentContainerStyle={{ gap: 10 }}
+                /> */}
 
                 {addingExtra && (
                   <View className="my-2 flex-row items-center">

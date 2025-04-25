@@ -14,6 +14,7 @@ import {
 import { supabase } from '~/utils/supabase';
 import { useRouter } from 'expo-router';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useAuth } from '~/contexts/AuthProvider';
 
 type AddIngredientModalProps = {
   visible: boolean;
@@ -87,13 +88,13 @@ export default function AddIngredientModal({
     iron: null,
   });
   const [addingExtra, setAddingExtra] = useState(false);
+  const { user } = useAuth();
   const [extraNutrition, setExtraNutrition] = useState<{
     label: string;
     unit: string;
     value: string;
   }>({ label: '', unit: 'g', value: '' });
   const [allExtras, setAllExtras] = useState<Record<string, any>>({});
-  const [selectedLanguage, setSelectedLanguage] = useState();
 
   const requiredFields = ['servingsPerContainer', 'calories'];
 
@@ -104,31 +105,47 @@ export default function AddIngredientModal({
     }));
   };
 
+  // const handleSubmit = async () => {
+  //   try {
+  //     console.log(formData);
+
+  // router.back();
+  // onClose();
+  //   } catch (error) {
+  //     console.error('Submission error:', error);
+  //   }
+  // };
+
   const handleSubmit = async () => {
+    const submissionData = {
+      ...formData,
+      extraNutrition: allExtras,
+    };
+    const { data, error } = await supabase.from('ingredients').insert([submissionData]).select();
+
+    if (error) {
+      console.error('Error inserting data:', error.message);
+      return;
+    }
+
     try {
-      const submissionData = {
-        ...formData,
-        extraNutrition: allExtras,
-      };
-
-      const { data, error } = await supabase.from('ingredients').insert([submissionData]).select();
-
-      if (error) throw error;
-
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('No user logged in');
-
-      const { error: linkError } = await supabase.rpc('append_ingredient_user', {
-        userid: userData.user.id,
-        ingredientid: data[0].id,
-      });
-
-      if (linkError) throw linkError;
-
-      router.back();
-      onClose();
+      const ingredientId = data?.[0]?.id;
+      const userId = user?.id;
+      const { data: insertData, error: insertError } = await supabase.rpc(
+        'append_ingredient_user',
+        {
+          userid: userId,
+          ingredientid: ingredientId,
+        }
+      );
+      if (insertError) {
+        console.error('Error inserting data 2:', insertError.message);
+      } else {
+        router.back();
+        onClose();
+      }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('Error adding ingredient to user:', error);
     }
   };
 
@@ -138,6 +155,7 @@ export default function AddIngredientModal({
       setAllExtras((prev) => ({
         ...prev,
         [key]: {
+          key: key,
           label: extraNutrition.label,
           unit: extraNutrition.unit,
           value: Number(extraNutrition.value),
@@ -149,11 +167,11 @@ export default function AddIngredientModal({
   };
 
   const renderFormField = (label: string, field: keyof FormDataType, required?: boolean) => (
-    <View className="my-2 flex-row items-center justify-between" key={label}>
-      <Text className="text-md flex-1">
-        {label}
-        {required && '*'}
-      </Text>
+    <View className="my-2 flex-row justify-between" key={label}>
+      <View className="flex flex-1 justify-center">
+        <Text className="text-lg"> {label}</Text>
+        {required && <Text className="text-sm">(Required)</Text>}
+      </View>
       <TextInput
         className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right"
         placeholder={required ? 'Required' : 'Optional'}
@@ -188,10 +206,14 @@ export default function AddIngredientModal({
             </Text>
             {modalPage == 'form' ? (
               <Pressable onPress={() => setModalPage('review')}>
-                <Text className="text-base text-blue-500">{">"}</Text>
+                <Text className="text-base text-blue-500">{'>'}</Text>
               </Pressable>
             ) : (
-              <Pressable onPress={() => console.log(formData)}>
+              <Pressable
+                onPress={() => {
+                  console.log(formData);
+                  console.log(allExtras);
+                }}>
                 <Text className="text-base text-blue-500">Submit</Text>
               </Pressable>
             )}
@@ -206,15 +228,15 @@ export default function AddIngredientModal({
           <ScrollView className="flex-1 p-4">
             {modalPage === 'form' ? (
               <>
-                <Text>Ingredient Name</Text>
+                <Text className="mb-1 text-lg">Ingredient Name</Text>
                 <TextInput
                   placeholder="Ingredient Name"
                   value={formData.name}
                   onChangeText={(v) => setFormData((prev) => ({ ...prev, name: v }))}
                   className="mb-2 h-[35px] rounded border border-gray-300 p-2"
                 />
-
-                <View className="my-2 flex-row">
+                <Text className="mb-1 text-lg">Serving Size</Text>
+                <View className="mb-2 flex-row">
                   <View className="w-1/2 pr-1">
                     <TextInput
                       placeholder="Serving Size"
@@ -304,6 +326,29 @@ export default function AddIngredientModal({
                   contentContainerStyle={{ gap: 10 }}
                 /> */}
 
+                {Object.entries(allExtras).map(([key, nutrition]) => (
+                  <View className="my-2 flex-row items-center justify-between" key={key}>
+                    <Text className="text-md flex-1">
+                      {nutrition.label} ({nutrition.unit})
+                    </Text>
+                    <TextInput
+                      className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right"
+                      placeholder="Optional"
+                      keyboardType="numeric"
+                      value={nutrition.value?.toString() || ''}
+                      onChangeText={(v) => {
+                        setAllExtras((prev) => ({
+                          ...prev,
+                          [key]: {
+                            ...prev[key],
+                            value: v === '' ? null : Number(v),
+                          },
+                        }));
+                      }}
+                    />
+                  </View>
+                ))}
+
                 {addingExtra && (
                   <View className="my-2 flex-row items-center">
                     <TextInput
@@ -323,7 +368,7 @@ export default function AddIngredientModal({
                 )}
 
                 <Pressable
-                  className="my-4 rounded bg-blue-500 p-3"
+                  className="mt-4 mb-14 rounded bg-blue-500 p-3"
                   onPress={addingExtra ? addExtraNutrition : () => setAddingExtra(true)}>
                   <Text className="text-center font-semibold text-white">
                     {addingExtra ? 'Add Nutrition' : 'Add Extra Nutrition'}

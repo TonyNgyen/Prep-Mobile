@@ -10,6 +10,7 @@ type Props = {
 
 export default function IngredientListItem({ ingredient }: Props) {
   const [open, setOpen] = useState(false);
+  console.log(ingredient);
 
   return (
     <View className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
@@ -18,7 +19,11 @@ export default function IngredientListItem({ ingredient }: Props) {
           open ? 'rounded-b-none' : 'rounded-md'
         }`}
         onPress={() => setOpen(!open)}>
-        <Text className="text-xl font-semibold text-white">{ingredient.name}</Text>
+        <View className="flex-col items-start gap-1">
+          <Text className="text-xl font-semibold text-white">{ingredient.name}</Text>
+          {ingredient.brand && <Text className="text-m text-gray-200">{ingredient.brand}</Text>}
+        </View>
+
         <Text className="text-xl text-white">{open ? '^' : 'v'}</Text>
       </TouchableOpacity>
 

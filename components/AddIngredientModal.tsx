@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -8,22 +8,24 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
-  StyleSheet,
-  FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { supabase } from '~/utils/supabase';
-import { useRouter } from 'expo-router';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useAuth } from '~/contexts/AuthProvider';
+import { Ingredient } from '~/types';
 
 type AddIngredientModalProps = {
   visible: boolean;
   onClose: () => void;
   headerHeight: number;
+  onConfirm: (ingredient: Ingredient) => void;
 };
 
 type FormDataType = {
   name: string;
+  brand: string;
   servingSize: number | null;
   servingUnit: string;
   servingsPerContainer: number | null;
@@ -57,11 +59,11 @@ export default function AddIngredientModal({
   visible,
   onClose,
   headerHeight,
+  onConfirm,
 }: AddIngredientModalProps) {
-  const router = useRouter();
-  const [modalPage, setModalPage] = useState<'form' | 'review'>('form');
   const [formData, setFormData] = useState<FormDataType>({
     name: '',
+    brand: '',
     servingSize: null,
     servingUnit: 'g',
     servingsPerContainer: null,
@@ -95,8 +97,9 @@ export default function AddIngredientModal({
     value: string;
   }>({ label: '', unit: 'g', value: '' });
   const [allExtras, setAllExtras] = useState<Record<string, any>>({});
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const requiredFields = ['servingsPerContainer', 'calories'];
+  const requiredFields = ['servingsPerContainer', 'calories', 'servingSize', 'name'];
 
   const handleChange = (name: keyof FormDataType, value: string) => {
     setFormData((prev) => ({
@@ -105,22 +108,22 @@ export default function AddIngredientModal({
     }));
   };
 
-  // const handleSubmit = async () => {
-  //   try {
-  //     console.log(formData);
-
-  // router.back();
-  // onClose();
-  //   } catch (error) {
-  //     console.error('Submission error:', error);
-  //   }
-  // };
-
   const handleSubmit = async () => {
+    const missingFields = requiredFields.filter((field) => {
+      const value = formData[field as keyof FormDataType];
+      return value === null || value === '';
+    });
+
+    if (!formData.name || !formData.servingSize || missingFields.length > 0) {
+      alert('Please fill out all required fields.');
+      return;
+    }
+
     const submissionData = {
       ...formData,
       extraNutrition: allExtras,
     };
+
     const { data, error } = await supabase.from('ingredients').insert([submissionData]).select();
 
     if (error) {
@@ -141,7 +144,13 @@ export default function AddIngredientModal({
       if (insertError) {
         console.error('Error inserting data 2:', insertError.message);
       } else {
-        router.back();
+        onConfirm({
+          ...formData,
+          extraNutrition: allExtras,
+          id: 'new',
+          servingSize: formData.servingSize ?? 0,
+          servingsPerContainer: formData.servingsPerContainer ?? 0,
+        });
         onClose();
       }
     } catch (error) {
@@ -173,11 +182,16 @@ export default function AddIngredientModal({
         {required && <Text className="text-sm">(Required)</Text>}
       </View>
       <TextInput
-        className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right"
+        className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
         placeholder={required ? 'Required' : 'Optional'}
         keyboardType="numeric"
         value={formData[field]?.toString() || ''}
         onChangeText={(v) => handleChange(field, v)}
+        // onFocus={() => {
+        //   if (scrollViewRef.current) {
+        //     scrollViewRef.current.scrollToEnd({ animated: true });
+        //   }
+        // }}
       />
     </View>
   );
@@ -189,61 +203,62 @@ export default function AddIngredientModal({
           <View
             className="flex-row items-end justify-between border-b border-gray-200 px-4 pb-3"
             style={{ height: headerHeight }}>
-            {modalPage == 'form' ? (
-              <Pressable onPress={onClose}>
-                <Text className="text-base text-blue-500">X</Text>
-              </Pressable>
-            ) : (
-              <Pressable onPress={() => setModalPage('form')}>
-                <Text className="text-base text-blue-500">{'<'}</Text>
-              </Pressable>
-            )}
-            {/* <Pressable onPress={onClose}>
+            <Pressable onPress={onClose}>
               <Text className="text-base text-blue-500">X</Text>
-            </Pressable> */}
-            <Text className="text-lg font-semibold">
-              {modalPage === 'form' ? 'Add Ingredient' : 'Review'}
-            </Text>
-            {modalPage == 'form' ? (
-              <Pressable onPress={() => setModalPage('review')}>
-                <Text className="text-base text-blue-500">{'>'}</Text>
-              </Pressable>
-            ) : (
-              <Pressable
-                onPress={() => {
-                  console.log(formData);
-                  console.log(allExtras);
-                }}>
-                <Text className="text-base text-blue-500">Submit</Text>
-              </Pressable>
-            )}
-            {/* <Pressable
-              onPress={() => setModalPage((prev) => (prev === 'form' ? 'review' : 'form'))}>
-              <Text className="text-base text-blue-500">
-                {modalPage === 'form' ? 'Next' : 'Submit'}
-              </Text>
-            </Pressable> */}
+            </Pressable>
+            <Text className="text-lg font-semibold">Add Ingredient</Text>
+            <Pressable onPress={handleSubmit}>
+              <Text className="text-base text-blue-500">Submit</Text>
+            </Pressable>
           </View>
-
-          <ScrollView className="flex-1 p-4">
-            {modalPage === 'form' ? (
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={{ flex: 1 }}>
+            <ScrollView className="flex-1 p-4" ref={scrollViewRef}>
               <>
-                <Text className="mb-1 text-lg">Ingredient Name</Text>
+                <Text className="mb-1 text-lg">
+                  Ingredient Name <Text className="text-sm"> (Required)</Text>
+                </Text>
+
                 <TextInput
                   placeholder="Ingredient Name"
                   value={formData.name}
                   onChangeText={(v) => setFormData((prev) => ({ ...prev, name: v }))}
-                  className="mb-2 h-[35px] rounded border border-gray-300 p-2"
+                  className="mb-2 h-[35px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                  onFocus={() => {
+                    if (scrollViewRef.current) {
+                      scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+                    }
+                  }}
                 />
-                <Text className="mb-1 text-lg">Serving Size</Text>
+                <Text className="mb-1 text-lg">Brand</Text>
+                <TextInput
+                  placeholder="Brand"
+                  value={formData.brand}
+                  onChangeText={(v) => setFormData((prev) => ({ ...prev, brand: v }))}
+                  className="mb-2 h-[35px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                  onFocus={() => {
+                    if (scrollViewRef.current) {
+                      scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+                    }
+                  }}
+                />
+                <Text className="mb-1 text-lg">
+                  Serving Size <Text className="text-sm"> (Required)</Text>
+                </Text>
                 <View className="mb-2 flex-row">
                   <View className="w-1/2 pr-1">
                     <TextInput
                       placeholder="Serving Size"
-                      className="h-[35px] rounded-l border border-gray-300 p-2"
+                      className="h-[35px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
                       keyboardType="numeric"
                       value={formData.servingSize?.toString() || ''}
                       onChangeText={(v) => handleChange('servingSize', v)}
+                      onFocus={() => {
+                        if (scrollViewRef.current) {
+                          scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
+                        }
+                      }}
                     />
                   </View>
                   <View className="w-1/2 pl-1">
@@ -252,7 +267,7 @@ export default function AddIngredientModal({
                         height: 35,
                         borderColor: '#d1d5db',
                         borderWidth: 1,
-                        borderRadius: 8,
+                        borderRadius: 4,
                         paddingHorizontal: 8,
                       }}
                       placeholderStyle={{ color: 'gray' }}
@@ -296,43 +311,13 @@ export default function AddIngredientModal({
                   renderFormField(label as string, field as keyof FormDataType, required)
                 )}
 
-                {/* <FlatList
-                  className=""
-                  data={[
-                    ['Servings Per Container', 'servingsPerContainer', true],
-                    ['Price Per Container', 'pricePerContainer'],
-                    ['Calories', 'calories', true],
-                    ['Total Fat (g)', 'totalFat'],
-                    ['Saturated Fat (g)', 'saturatedFat'],
-                    ['Polyunsaturated Fat (g)', 'polyunsaturatedFat'],
-                    ['Monounsaturated Fat (g)', 'monounsaturatedFat'],
-                    ['Trans Fat (g)', 'transFat'],
-                    ['Cholesterol (mg)', 'cholesterol'],
-                    ['Sodium (mg)', 'sodium'],
-                    ['Potassium (mg)', 'potassium'],
-                    ['Total Carbohydrates (g)', 'totalCarbohydrates'],
-                    ['Dietary Fiber (g)', 'dietaryFiber'],
-                    ['Total Sugars (g)', 'totalSugars'],
-                    ['Added Sugars (g)', 'addedSugars'],
-                    ['Sugar Alcohols (g)', 'sugarAlcohols'],
-                    ['Protein (g)', 'protein'],
-                    ['Vitamin A (%)', 'vitaminA'],
-                    ['Vitamin C (%)', 'vitaminC'],
-                    ['Vitamin D (%)', 'vitaminD'],
-                    ['Calcium (%)', 'calcium'],
-                    ['Iron (%)', 'iron'],
-                  ]}
-                  renderItem={({ item }) => <Text>{item[0]}</Text>}
-                  contentContainerStyle={{ gap: 10 }}
-                /> */}
-
                 {Object.entries(allExtras).map(([key, nutrition]) => (
                   <View className="my-2 flex-row items-center justify-between" key={key}>
                     <Text className="text-md flex-1">
                       {nutrition.label} ({nutrition.unit})
                     </Text>
                     <TextInput
-                      className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right"
+                      className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
                       placeholder="Optional"
                       keyboardType="numeric"
                       value={nutrition.value?.toString() || ''}
@@ -353,52 +338,42 @@ export default function AddIngredientModal({
                   <View className="my-2 flex-row items-center">
                     <TextInput
                       placeholder="Nutrition Label"
-                      className="mr-2 flex-1 rounded border border-gray-300 p-2"
+                      className="mr-2 flex-1 rounded border border-gray-300 p-2 placeholder:text-gray-300"
                       value={extraNutrition.label}
                       onChangeText={(v) => setExtraNutrition((prev) => ({ ...prev, label: v }))}
+                      onFocus={() => {
+                        if (scrollViewRef.current) {
+                          scrollViewRef.current.scrollToEnd({ animated: true });
+                        }
+                      }}
                     />
                     <TextInput
                       placeholder="Value"
-                      className="ml-2 w-20 rounded border border-gray-300 p-2"
+                      className="ml-2 w-20 rounded border border-gray-300 p-2 placeholder:text-gray-300"
                       keyboardType="numeric"
                       value={extraNutrition.value}
                       onChangeText={(v) => setExtraNutrition((prev) => ({ ...prev, value: v }))}
+                      onFocus={() => {
+                        if (scrollViewRef.current) {
+                          scrollViewRef.current.scrollToEnd({ animated: true });
+                        }
+                      }}
                     />
                   </View>
                 )}
 
                 <Pressable
-                  className="mt-4 mb-14 rounded bg-blue-500 p-3"
+                  className="mb-14 mt-4 rounded bg-blue-500 p-3"
                   onPress={addingExtra ? addExtraNutrition : () => setAddingExtra(true)}>
                   <Text className="text-center font-semibold text-white">
                     {addingExtra ? 'Add Nutrition' : 'Add Extra Nutrition'}
                   </Text>
                 </Pressable>
               </>
-            ) : (
-              <View>
-                <Text className="mb-4 text-lg font-semibold">Review Ingredient</Text>
-                {/* Render review content here */}
-              </View>
-            )}
-          </ScrollView>
-
-          {modalPage === 'review' && (
-            <Pressable className="m-4 rounded bg-green-500 p-4" onPress={handleSubmit}>
-              <Text className="text-center font-semibold text-white">Confirm</Text>
-            </Pressable>
-          )}
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  picker: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 6,
-  },
-});

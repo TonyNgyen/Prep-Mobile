@@ -95,6 +95,14 @@ export default function AddRecipeModal({
     }
   };
 
+  const renderPage = () => {
+    if (page == 'first') {
+    } else if (page == 'ingredients') {
+    } else {
+      
+    }
+  };
+
   useEffect(() => {
     const sumNutrition = () => {
       const total = Object.values(ingredientList).reduce(

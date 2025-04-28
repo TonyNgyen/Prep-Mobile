@@ -31,4 +31,17 @@ const fetchUserIngredients = async (userId: string | undefined) => {
   }
 };
 
-export { fetchUserIngredients };
+const fetchIngredientsByName = async (name: string) => {
+  try {
+    const { data, error } = await supabase.from('ingredients').select().eq('name', name);
+    if (error) {
+      console.error('Error fetching ingredient by name: ', error);
+    }
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+  }
+};
+
+export { fetchUserIngredients, fetchIngredientsByName };

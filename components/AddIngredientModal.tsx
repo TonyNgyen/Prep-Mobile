@@ -182,7 +182,7 @@ export default function AddIngredientModal({
         {required && <Text className="text-sm">(Required)</Text>}
       </View>
       <TextInput
-        className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
+        className="h-[40px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
         placeholder={required ? 'Required' : 'Optional'}
         keyboardType="numeric"
         value={formData[field]?.toString() || ''}
@@ -224,7 +224,7 @@ export default function AddIngredientModal({
                   placeholder="Ingredient Name"
                   value={formData.name}
                   onChangeText={(v) => setFormData((prev) => ({ ...prev, name: v }))}
-                  className="mb-2 h-[35px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                  className="mb-2 h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
                   onFocus={() => {
                     if (scrollViewRef.current) {
                       scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
@@ -236,7 +236,7 @@ export default function AddIngredientModal({
                   placeholder="Brand"
                   value={formData.brand}
                   onChangeText={(v) => setFormData((prev) => ({ ...prev, brand: v }))}
-                  className="mb-2 h-[35px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                  className="mb-2 h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
                   onFocus={() => {
                     if (scrollViewRef.current) {
                       scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
@@ -250,7 +250,7 @@ export default function AddIngredientModal({
                   <View className="w-1/2 pr-1">
                     <TextInput
                       placeholder="Serving Size"
-                      className="h-[35px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                      className="h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
                       keyboardType="numeric"
                       value={formData.servingSize?.toString() || ''}
                       onChangeText={(v) => handleChange('servingSize', v)}
@@ -317,7 +317,7 @@ export default function AddIngredientModal({
                       {nutrition.label} ({nutrition.unit})
                     </Text>
                     <TextInput
-                      className="h-[35px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
+                      className="h-[40px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
                       placeholder="Optional"
                       keyboardType="numeric"
                       value={nutrition.value?.toString() || ''}

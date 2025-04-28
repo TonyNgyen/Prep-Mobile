@@ -6,11 +6,20 @@ import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
 
 type Props = {
   ingredient: Ingredient;
+  numberOfServings: number | null;
+  servingSize: number | null;
 };
 
-export default function IngredientListItem({ ingredient }: Props) {
+function roundToTwoDecimals(num: number) {
+  return Math.round(num * 100) / 100;
+}
+
+export default function IngredientAddedToRecipeItem({
+  ingredient,
+  numberOfServings,
+  servingSize,
+}: Props) {
   const [open, setOpen] = useState(false);
-  console.log(ingredient);
 
   return (
     <View className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
@@ -29,42 +38,63 @@ export default function IngredientListItem({ ingredient }: Props) {
 
       {open && (
         <View className="rounded-b-md border-[3px] border-t-0 border-gray-800 bg-white p-4">
-          <Text className="mb-2 text-base font-medium">
-            {ingredient.servingsPerContainer} Servings Per Container
-          </Text>
+          <Text className="mb-2 text-base font-medium">{numberOfServings} Servings</Text>
           <View className="mb-2 flex-row justify-between border-b-8 border-gray-800 pb-2">
             <Text className="text-base font-semibold">Serving Size</Text>
             <Text className="text-base">
-              {ingredient.servingSize}
+              {servingSize ?? ingredient.servingSize}
               {ingredient.servingUnit ?? 'g'}
             </Text>
           </View>
 
           <View className="gap-1">
+            {/* Nutritional Keys */}
             {(Object.keys(NUTRITIONAL_KEYS) as Array<keyof Ingredient>).map((key) => {
-              const value = ingredient[key];
-              if (!value) return null;
+              const rawValue = ingredient[key];
+              if (rawValue == null) return null;
+
+              const value =
+                (Number(rawValue) || 0) *
+                (numberOfServings ?? 1) *
+                ((servingSize ?? 1) / (ingredient.servingSize || 1));
+
+              const roundedValue = roundToTwoDecimals(value);
+
+              if (isNaN(roundedValue)) return null;
+
+              const unit = NUTRITIONAL_UNITS[key];
 
               return (
                 <View key={key} className="flex-row justify-between">
                   <Text className="text-base">{NUTRITIONAL_KEYS[key]}</Text>
                   <Text className="text-base">
-                    {value}
-                    {NUTRITIONAL_UNITS[key]}
+                    {roundedValue}
+                    {unit}
                   </Text>
                 </View>
               );
             })}
 
+            {/* Extra Nutrition */}
             {Object.entries(ingredient.extraNutrition ?? {}).map(([key, val]) => {
               if (val.value == null) return null;
-              const unit = val.unit === 'percent' ? '%' : val.unit;
+
+              const value =
+                (val.value ?? 0) *
+                (numberOfServings ?? 1) *
+                ((servingSize ?? 1) / (ingredient.servingSize || 1));
+
+              const roundedValue = roundToTwoDecimals(value);
+
+              if (isNaN(roundedValue)) return null;
+
+              let unit = val.unit === 'percent' ? '%' : val.unit;
 
               return (
                 <View key={key} className="flex-row justify-between">
                   <Text className="text-base">{val.label}</Text>
                   <Text className="text-base">
-                    {val.value}
+                    {roundedValue}
                     {unit}
                   </Text>
                 </View>

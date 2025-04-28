@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
-import IngredientListItem from '~/components/IngredientListItem';
+import IngredientListItem from '~/components/IngredientItem/IngredientListItem';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserIngredients } from '~/lib/ingredient';
 

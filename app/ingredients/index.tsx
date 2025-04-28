@@ -1,12 +1,12 @@
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
-import IngredientListItem from '~/components/IngredientListItem';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserIngredients } from '~/lib/ingredient';
 import { useHeaderHeight } from '@react-navigation/elements';
 import AddIngredientModal from '~/components/AddIngredientModal';
 import { Ingredient } from '~/types';
+import IngredientListItem from '~/components/IngredientItem/IngredientListItem';
 
 export default function Ingredients() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -17,7 +17,6 @@ export default function Ingredients() {
   useEffect(() => {
     const fetch = async () => {
       const ingredientsFetched = await fetchUserIngredients(user?.id);
-      console.log(ingredientsFetched[0]);
       setIngredients(ingredientsFetched);
     };
     fetch();

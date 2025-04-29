@@ -13,6 +13,7 @@ export default function Recipes() {
   const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const height = useHeaderHeight();
+  const [newCounter, setNewCounter] = useState(0);
   useEffect(() => {
     const fetch = async () => {
       const recipesFetched = await fetchUserRecipes(user?.id);
@@ -20,9 +21,11 @@ export default function Recipes() {
     };
     fetch();
   }, []);
+
   const handleAddRecipe = (newRecipe: Recipe) => {
     setRecipes((prev) => [...prev, newRecipe]);
   };
+
   return (
     <View className="flex-1 p-4">
       <Stack.Screen options={{ title: 'Recipes' }} />
@@ -42,6 +45,8 @@ export default function Recipes() {
         onClose={() => setModalVisible(false)}
         onConfirm={handleAddRecipe}
         headerHeight={height}
+        newCounter={newCounter}
+        setNewCounter={setNewCounter}
       />
     </View>
   );

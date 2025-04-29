@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   Modal,
   Text,
@@ -14,12 +14,17 @@ import { fetchIngredientsByName } from '~/lib/ingredient';
 import { Ingredient, NutritionFacts, Recipe } from '~/types';
 import IngredientAddToRecipeItem from './IngredientItem/IngredientAddToRecipeItem';
 import IngredientAddedToRecipeItem from './IngredientItem/IngredientAddedToRecipeItem';
+import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
+import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
+import { addRecipe } from '~/lib/recipe';
 
 type AddRecipeModalProps = {
   visible: boolean;
   onClose: () => void;
   headerHeight: number;
   onConfirm: (recipe: Recipe) => void;
+  newCounter: number;
+  setNewCounter: Dispatch<SetStateAction<number>>;
 };
 
 export default function AddRecipeModal({
@@ -27,6 +32,8 @@ export default function AddRecipeModal({
   onClose,
   headerHeight,
   onConfirm,
+  newCounter,
+  setNewCounter,
 }: AddRecipeModalProps) {
   const SERVING_UNITS = [
     ['g', 'Grams (g)'],
@@ -53,6 +60,7 @@ export default function AddRecipeModal({
   const [search, setSearch] = useState<string>('');
   const [searching, setSearching] = useState<boolean>(false);
   const [searchResultList, setSearchResultList] = useState([]);
+  const [displaySetting, setDisplaySetting] = useState<string>('total');
   const [recipeNutrition, setRecipeNutrition] = useState<NutritionFacts>({
     calories: 0,
     protein: 0,
@@ -76,6 +84,100 @@ export default function AddRecipeModal({
     iron: 0,
     extraNutrition: {},
   });
+
+  const reset = () => {
+    setIngredientInformation({});
+    setName('');
+    setNumberOfServings('');
+    setServingSize('');
+    setServingUnit('g');
+    setPage('first');
+    setSearch('');
+    setSearching(false);
+    setSearchResultList([]);
+    setDisplaySetting('total');
+    setRecipeNutrition({
+      calories: 0,
+      protein: 0,
+      totalFat: 0,
+      saturatedFat: 0,
+      polyunsaturatedFat: 0,
+      monounsaturatedFat: 0,
+      transFat: 0,
+      cholesterol: 0,
+      sodium: 0,
+      potassium: 0,
+      totalCarbohydrates: 0,
+      dietaryFiber: 0,
+      totalSugars: 0,
+      addedSugars: 0,
+      sugarAlcohols: 0,
+      vitaminA: 0,
+      vitaminC: 0,
+      vitaminD: 0,
+      calcium: 0,
+      iron: 0,
+      extraNutrition: {},
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (
+      await addRecipe(
+        name,
+        recipeNutrition,
+        ingredientInformation,
+        parseFloat(numberOfServings),
+        parseFloat(servingSize),
+        servingUnit
+      )
+    ) {
+      const transformedIngredientList = Object.fromEntries(
+        Object.entries(ingredientList).map(([key, value]) => [
+          key,
+          {
+            servingSize: value.servingSize ?? 0,
+            numberOfServings: value.numberOfServings,
+          },
+        ])
+      );
+
+      onConfirm({
+        ...recipeNutrition,
+        id: String(newCounter),
+        name,
+        ingredientList: transformedIngredientList,
+        servingSize: parseFloat(servingSize),
+        servingUnit,
+        numberOfServings: parseFloat(numberOfServings),
+        pricePerServing: 1,
+      });
+      setNewCounter((prev) => prev + 1);
+      reset();
+      onClose();
+      return;
+    } else {
+      alert('There has been an error. Please try again later.');
+    }
+  };
+
+  const handleAlert = () => {
+    if (page == 'first') {
+      if (name == '' || servingSize == '' || numberOfServings == '') {
+        alert('Please fill in all fields!');
+        return false;
+      }
+      return true;
+    }
+
+    if (page == 'ingredients') {
+      if (Object.entries(ingredientInformation).length == 0) {
+        alert('Please add an ingredient!');
+        return false;
+      }
+      return true;
+    }
+  };
 
   const addIngredient = (index: number, numberOfServings: number, servingSize: number | null) => {
     if (searchResultList == null) return;
@@ -106,13 +208,22 @@ export default function AddRecipeModal({
     if (page == 'first') {
       return (
         <>
-          <Pressable onPress={onClose} className="px-4 pb-3">
+          <Pressable
+            onPress={() => {
+              onClose();
+              reset();
+            }}
+            className="px-4 pb-3">
             <Text className="text-base text-blue-500">X</Text>
           </Pressable>
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
             Add Recipe
           </Text>
-          <Pressable onPress={() => setPage('ingredients')} className="px-4 pb-3">
+          <Pressable
+            onPress={() => {
+              handleAlert() && setPage('ingredients');
+            }}
+            className="px-4 pb-3">
             <Text className="text-base text-blue-500">{'>'}</Text>
           </Pressable>
         </>
@@ -126,7 +237,11 @@ export default function AddRecipeModal({
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
             Add Recipe
           </Text>
-          <Pressable onPress={() => setPage('review')} className="px-4 pb-3">
+          <Pressable
+            onPress={() => {
+              handleAlert() && setPage('review');
+            }}
+            className="px-4 pb-3">
             <Text className="text-base text-blue-500">{'>'}</Text>
           </Pressable>
         </>
@@ -176,6 +291,7 @@ export default function AddRecipeModal({
                 setSearching={setSearching}
               />
             )}
+            contentContainerStyle={{ gap: 5 }}
           />
         </View>
       );
@@ -192,6 +308,7 @@ export default function AddRecipeModal({
                 key={index}
               />
             )}
+            contentContainerStyle={{ gap: 5 }}
           />
         </View>
       );
@@ -203,9 +320,7 @@ export default function AddRecipeModal({
       return (
         <View className="gap-y-2 p-4">
           <View>
-            <Text className="mb-1 text-lg">
-              Recipe Name <Text className="text-sm"> (Required)</Text>
-            </Text>
+            <Text className="mb-1 text-lg">Recipe Name</Text>
             <TextInput
               placeholder="Ingredient Name"
               value={name}
@@ -287,27 +402,82 @@ export default function AddRecipeModal({
       );
     } else {
       return (
-        <View className="p-4">
-          <Text>Review</Text>
+        <View className="flex-1 p-4">
+          <View className="flex-row gap-4">
+            <Pressable
+              className={`flex-1 rounded border-2 border-gray-800 bg-gray-800 p-4 ${displaySetting == 'total' ? '' : 'opacity-50'}`}
+              onPress={() => setDisplaySetting('total')}>
+              <Text className={`text-center font-bold text-white`}>Total Recipe</Text>
+            </Pressable>
+
+            <Pressable
+              className={`flex-1 rounded border-2 border-gray-800 bg-gray-800 p-4 ${displaySetting !== 'total' ? '' : 'opacity-50'}`}
+              onPress={() => setDisplaySetting('perServing')}>
+              <Text className={`text-center font-bold text-white`}>Per Serving</Text>
+            </Pressable>
+          </View>
+          <View className="mt-4 gap-2 rounded border-2 border-gray-800 p-4">
+            {(Object.keys(NUTRITIONAL_KEYS) as Array<keyof typeof NUTRITIONAL_KEYS>).map((key) => {
+              let value = recipeNutrition[key];
+
+              if (value === null || value === undefined) return null;
+
+              if (displaySetting == 'total') {
+                value = Number(value.toFixed(2));
+              } else {
+                value = Number((value / parseFloat(numberOfServings)).toFixed(2));
+                if (!value) {
+                  value = 0;
+                }
+              }
+
+              const unit = NUTRITIONAL_UNITS[key];
+
+              return (
+                <View key={key} className="flex-row items-center justify-between">
+                  <Text className="text-lg">{NUTRITIONAL_KEYS[key]}</Text>
+                  <Text className="text-lg">
+                    {value}
+                    {unit}
+                  </Text>
+                </View>
+              );
+            })}
+            {Object.keys(recipeNutrition.extraNutrition).map((key) => {
+              let value = recipeNutrition.extraNutrition[key]?.value;
+
+              if (value === null || value === undefined) return null;
+
+              if (displaySetting == 'total') {
+                value = Number(value.toFixed(2));
+              } else {
+                value = Number((value / parseFloat(numberOfServings)).toFixed(2));
+                if (!value) {
+                  value = 0;
+                }
+              }
+
+              let unit;
+              if (recipeNutrition.extraNutrition[key]?.unit === 'percent') {
+                unit = '%';
+              } else {
+                unit = recipeNutrition.extraNutrition[key]?.unit;
+              }
+
+              return (
+                <View key={key} className="flex items-center justify-between">
+                  <Text className="text-lg">{recipeNutrition.extraNutrition[key]?.label}</Text>
+                  <Text className="text-lg">
+                    {value}
+                    {unit}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
         </View>
       );
     }
-  };
-
-  const handleSubmit = async () => {
-    //   if (
-    //     await addRecipe(
-    //       name,
-    //       recipeNutrition,
-    //       ingredientIdList,
-    //       numberOfServings,
-    //       servingSize,
-    //       servingUnit
-    //     )
-    //   ) {
-    //     router.push('/');
-    //   }
-    console.log('Implement later');
   };
 
   useEffect(() => {

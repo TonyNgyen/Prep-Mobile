@@ -39,7 +39,7 @@ export default function IngredientAddToRecipeItem({
         <View className="flex-row gap-2">
           {open && (
             <Pressable
-              className="flex items-center justify-center bg-white px-4"
+              className="flex items-center justify-center rounded bg-white px-4"
               onPress={() => {
                 addIngredient(index, parsedNumberOfServings, parsedServingSize);
                 setSearching(false);

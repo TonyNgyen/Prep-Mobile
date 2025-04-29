@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
 import AddRecipeModal from '~/components/AddRecipeModal';
-import RecipeListItem from '~/components/RecipeListItem';
+import RecipeListItem from '~/components/RecipeItem/RecipeListItem';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserRecipes } from '~/lib/recipe';
 import { Recipe } from '~/types';
@@ -28,7 +28,13 @@ export default function Recipes() {
 
   return (
     <View className="flex-1 p-4">
-      <Stack.Screen options={{ title: 'Recipes' }} />
+      <Stack.Screen
+        options={{
+          title: 'Recipes',
+          headerBackButtonDisplayMode: 'minimal',
+          headerTintColor: 'black',
+        }}
+      />
       <FlatList
         className=""
         data={recipes}

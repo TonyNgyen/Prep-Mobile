@@ -28,7 +28,13 @@ export default function Ingredients() {
 
   return (
     <View className="flex-1 p-4">
-      <Stack.Screen options={{ title: 'Ingredients' }} />
+      <Stack.Screen
+        options={{
+          title: 'Ingredients',
+          headerBackButtonDisplayMode: 'minimal',
+          headerTintColor: 'black',
+        }}
+      />
       <FlatList
         data={ingredients}
         renderItem={({ item }) => <IngredientListItem ingredient={item} />}

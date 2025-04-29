@@ -1,7 +1,7 @@
 export type InventoryRecipe = {
   id: string;
   name: string;
-  servings: number;
+  numberOfServings: number;
   servingSize: number;
   totalAmount: number;
   unit: string;

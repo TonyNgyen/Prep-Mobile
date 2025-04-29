@@ -1,5 +1,4 @@
 import { supabase } from '~/utils/supabase';
-import { getUserId } from './user';
 
 const fetchUserIngredients = async (userId: string | undefined) => {
   try {

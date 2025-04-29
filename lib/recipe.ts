@@ -31,6 +31,12 @@ const fetchUserRecipes = async (userId: string | undefined) => {
   }
 };
 
+const fetchRecipesByName = async (recipeSearch: string) => {
+  const { data, error } = await supabase.from('recipes').select().eq('name', recipeSearch);
+  if (error) console.log(error);
+  return data;
+};
+
 const addRecipe = async (
   name: string,
   recipeNutrition: NutritionFacts,
@@ -77,4 +83,4 @@ const addRecipe = async (
   return true;
 };
 
-export { fetchUserRecipes, addRecipe };
+export { fetchUserRecipes, addRecipe, fetchRecipesByName };

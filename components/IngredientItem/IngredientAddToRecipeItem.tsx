@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, Pressable } from 'react-native
 import { Ingredient } from '~/types';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
+import Feather from '@expo/vector-icons/Feather';
 
 type Props = {
   ingredient: Ingredient;
@@ -53,7 +54,11 @@ export default function IngredientAddToRecipeItem({
           </View>
         </View>
 
-        <Text className="text-xl text-white">{open ? '^' : 'v'}</Text>
+        {open ? (
+          <Feather name="chevron-up" size={24} color="white" />
+        ) : (
+          <Feather name="chevron-down" size={24} color="white" />
+        )}
       </TouchableOpacity>
 
       {open && (

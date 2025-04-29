@@ -15,6 +15,7 @@ import { supabase } from '~/utils/supabase';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useAuth } from '~/contexts/AuthProvider';
 import { Ingredient } from '~/types';
+import Feather from '@expo/vector-icons/Feather';
 
 type AddIngredientModalProps = {
   visible: boolean;
@@ -204,11 +205,11 @@ export default function AddIngredientModal({
             className="flex-row items-end justify-between border-b border-gray-200 px-4 pb-3"
             style={{ height: headerHeight }}>
             <Pressable onPress={onClose}>
-              <Text className="text-base text-blue-500">X</Text>
+              <Feather name="x" size={24} color="black" />
             </Pressable>
             <Text className="text-lg font-semibold">Add Ingredient</Text>
             <Pressable onPress={handleSubmit}>
-              <Text className="text-base text-blue-500">Submit</Text>
+              <Feather name="check" size={24} color="black" />
             </Pressable>
           </View>
           <KeyboardAvoidingView
@@ -264,7 +265,7 @@ export default function AddIngredientModal({
                   <View className="w-1/2 pl-1">
                     <Dropdown
                       style={{
-                        height: 35,
+                        height: 40,
                         borderColor: '#d1d5db',
                         borderWidth: 1,
                         borderRadius: 4,

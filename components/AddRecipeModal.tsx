@@ -17,6 +17,7 @@ import IngredientAddedToRecipeItem from './IngredientItem/IngredientAddedToRecip
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
 import { addRecipe } from '~/lib/recipe';
+import Feather from '@expo/vector-icons/Feather';
 
 type AddRecipeModalProps = {
   visible: boolean;
@@ -214,7 +215,7 @@ export default function AddRecipeModal({
               reset();
             }}
             className="px-4 pb-3">
-            <Text className="text-base text-blue-500">X</Text>
+            <Feather name="x" size={24} color="black" />
           </Pressable>
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
             Add Recipe
@@ -224,7 +225,7 @@ export default function AddRecipeModal({
               handleAlert() && setPage('ingredients');
             }}
             className="px-4 pb-3">
-            <Text className="text-base text-blue-500">{'>'}</Text>
+            <Feather name="chevron-right" size={24} color="black" />
           </Pressable>
         </>
       );
@@ -232,7 +233,7 @@ export default function AddRecipeModal({
       return (
         <>
           <Pressable onPress={() => setPage('first')} className="px-4 pb-3">
-            <Text className="text-base text-blue-500">{'<'}</Text>
+            <Feather name="chevron-left" size={24} color="black" />
           </Pressable>
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
             Add Recipe
@@ -242,7 +243,7 @@ export default function AddRecipeModal({
               handleAlert() && setPage('review');
             }}
             className="px-4 pb-3">
-            <Text className="text-base text-blue-500">{'>'}</Text>
+            <Feather name="chevron-right" size={24} color="black" />
           </Pressable>
         </>
       );
@@ -250,13 +251,13 @@ export default function AddRecipeModal({
       return (
         <>
           <Pressable onPress={() => setPage('ingredients')} className="px-4 pb-3">
-            <Text className="text-base text-blue-500">{'<'}</Text>
+            <Feather name="chevron-left" size={24} color="black" />
           </Pressable>
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
             Add Recipe
           </Text>
           <Pressable onPress={() => handleSubmit()} className="px-4 pb-3">
-            <Text className="text-base text-blue-500">{'Submit'}</Text>
+            <Feather name="check" size={24} color="black" />
           </Pressable>
         </>
       );
@@ -322,7 +323,7 @@ export default function AddRecipeModal({
           <View>
             <Text className="mb-1 text-lg">Recipe Name</Text>
             <TextInput
-              placeholder="Ingredient Name"
+              placeholder="Required"
               value={name}
               onChangeText={(v) => setName(v)}
               className="mb-2 h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
@@ -332,7 +333,7 @@ export default function AddRecipeModal({
           <View className="flex-row  justify-between ">
             <Text className="mb-1 text-lg">Servings</Text>
             <TextInput
-              placeholder="Ingredient Name"
+              placeholder="Required"
               value={numberOfServings}
               keyboardType="numeric"
               onChangeText={(v) => setNumberOfServings(v)}
@@ -342,7 +343,7 @@ export default function AddRecipeModal({
           <View className="flex-row  justify-between ">
             <Text className="mb-1 text-lg">Serving Size</Text>
             <TextInput
-              placeholder="Ingredient Name"
+              placeholder="Required"
               value={servingSize}
               onChangeText={(v) => setServingSize(v)}
               keyboardType="numeric"

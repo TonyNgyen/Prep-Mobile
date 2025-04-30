@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Pressable, TextInput } from 'react-native';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
 import { Recipe, UserInventory } from '~/types';
 import Feather from '@expo/vector-icons/Feather';
+import { addRecipeToInventory } from '~/lib/inventory';
 
 type Props = {
   recipe: Recipe;
@@ -18,15 +19,87 @@ type Props = {
   inventory: UserInventory;
 };
 
-export default function RecipeAddToInventoryItem({ recipe }: Props) {
+export default function RecipeAddToInventoryItem({ recipe, add, inventory }: Props) {
   const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [addType, setAddType] = useState<string>('numberOfRecipes');
-  const [numberOfRecipes, setAmount] = useState<string>('');
+  const [numberOfRecipes, setNumberOfRecipes] = useState<string>('');
   const [numberOfServings, setNumberOfServings] = useState<string>('');
 
+  const handleAddRecipes = () => {
+    if (!numberOfRecipes || !recipe.servingSize) {
+      alert('Please fill in all fields!');
+      return;
+    }
+    const addToInventoryStatus = addRecipeToInventory(
+      inventory,
+      recipe,
+      {
+        id: recipe.id,
+        name: recipe.name,
+        numberOfServings: parseFloat(numberOfRecipes) * recipe.numberOfServings,
+        servingSize: recipe.servingSize,
+        totalAmount: parseFloat(numberOfRecipes) * recipe.numberOfServings * recipe.servingSize,
+        unit: recipe.servingUnit,
+        type: 'recipe',
+      },
+      true,
+      true
+    );
+    if (addToInventoryStatus[0]) {
+      add(
+        recipe.id,
+        recipe.name,
+        parseFloat(numberOfRecipes) * recipe.numberOfServings,
+        recipe.servingSize,
+        parseFloat(numberOfRecipes) * recipe.numberOfServings * recipe.servingSize,
+        recipe.servingUnit
+      );
+    } else {
+      alert(addToInventoryStatus[1]);
+    }
+  };
+
+  const handleAddServings = () => {
+    if (!numberOfServings) {
+      alert('Please fill in all fields!');
+      return;
+    }
+    const addToInventoryStatus = addRecipeToInventory(
+      inventory,
+      recipe,
+      {
+        id: recipe.id,
+        name: recipe.name,
+        numberOfServings: parseFloat(numberOfServings),
+        servingSize: recipe.servingSize,
+        totalAmount: parseFloat(numberOfServings) * recipe.servingSize,
+        unit: recipe.servingUnit,
+        type: 'recipe',
+      },
+      true,
+      true
+    );
+    if (addToInventoryStatus[0]) {
+      add(
+        recipe.id,
+        recipe.name,
+        parseFloat(numberOfServings),
+        recipe.servingSize,
+        parseFloat(numberOfServings) * recipe.servingSize,
+        recipe.servingUnit
+      );
+    } else {
+      alert(addToInventoryStatus[1]);
+    }
+  };
+
   const handleAdd = () => {
-    console.log('Handling Add');
+    if (addType == 'numberOfRecipes') {
+      handleAddRecipes();
+    } else {
+      handleAddServings();
+    }
   };
 
   const renderHeading = () => {
@@ -70,11 +143,31 @@ export default function RecipeAddToInventoryItem({ recipe }: Props) {
   };
 
   const renderInputs = () => {
-    return (
-      <View>
-        <Text>Inputs</Text>
-      </View>
-    );
+    if (addType == 'numberOfRecipes') {
+      return (
+        <View>
+          <Text>Number of Recipes</Text>
+          <TextInput
+            placeholder="Number of Recipes"
+            value={numberOfRecipes}
+            onChangeText={(v) => setNumberOfRecipes(v)}
+            className="h-[40px] flex-1 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+          />
+        </View>
+      );
+    } else {
+      return (
+        <View>
+          <Text>Number of Servings</Text>
+          <TextInput
+            placeholder="Number of Servings"
+            value={numberOfServings}
+            onChangeText={(v) => setNumberOfServings(v)}
+            className="h-[40px] flex-1 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+          />
+        </View>
+      );
+    }
   };
 
   const renderBody = () => {

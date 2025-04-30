@@ -56,6 +56,7 @@ export default function IngredientAddToInventoryItem({ ingredient, add, inventor
 
   const handleAddContainers = () => {
     if (!numberOfContainers) {
+      alert('Please fill in all fields!');
       return;
     }
     add(

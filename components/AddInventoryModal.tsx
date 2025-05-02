@@ -216,7 +216,7 @@ export default function AddInventoryModal({
         <View>
           <FlatList
             data={Object.values(foodToAdd)}
-            renderItem={({ item }) => <Text>{item.name}</Text>}
+            renderItem={({ item }) => <Text className="bg-gray-800 p-4 font-bold text-lg">{item.name}</Text>}
           />
         </View>
       );

@@ -56,7 +56,6 @@ export default function RecipeAddToInventoryItem({ recipe, add, inventory }: Pro
         recipe.servingUnit
       );
     } else {
-      // Implement later
       alert(addToInventoryStatus[1]);
     }
   };

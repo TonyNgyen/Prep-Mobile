@@ -15,12 +15,14 @@ import { fetchRecipesByName } from '~/lib/recipe';
 import { Ingredient, InventoryIngredient, InventoryRecipe, Recipe, UserInventory } from '~/types';
 import IngredientAddToInventoryItem from './IngredientItem/IngredientAddToInventoryItem';
 import RecipeAddToInventoryItem from './RecipeItem/RecipeAddToInventoryItem';
+import { updateUserInventory } from '~/lib/inventory';
 
 type Props = {
+  userId: string | undefined;
   visible: boolean;
   onClose: () => void;
   headerHeight: number;
-  onConfirm: (inventoryItem: InventoryIngredient | InventoryRecipe) => void;
+  onConfirm: (newInventory: UserInventory) => void;
   currentInventory: UserInventory;
 };
 
@@ -32,6 +34,7 @@ type SearchResultType = {
 type ItemsToAdd = Record<string, InventoryIngredient | InventoryRecipe>;
 
 export default function AddInventoryModal({
+  userId,
   visible,
   onClose,
   headerHeight,
@@ -44,15 +47,29 @@ export default function AddInventoryModal({
     recipes: [],
     ingredients: [],
   });
-  const [inventory, setInventory] = useState<UserInventory>({});
   const [foodToAdd, setFoodToAdd] = useState<ItemsToAdd>({});
 
   const handleAlert = () => {
     return true;
   };
 
-  const handleSubmit = () => {
-    console.log('Handling submit');
+  const reset = () => {
+    setPage('first');
+    setSearch('');
+    setSearchResult({ recipes: [], ingredients: [] });
+    setFoodToAdd({});
+  };
+
+  const handleSubmit = async () => {
+    if (userId == undefined) {
+      alert('Error: Please Contact Tony');
+      return;
+    }
+    if (await updateUserInventory(currentInventory, userId)) {
+      onConfirm(currentInventory);
+    }
+    reset();
+    onClose();
   };
 
   const renderHeader = () => {
@@ -213,10 +230,20 @@ export default function AddInventoryModal({
       );
     } else {
       return (
-        <View>
+        <View className="p-4">
+          <Pressable onPress={() => console.log(currentInventory)}>
+            <Text className="bg-red-200 p-5">Test</Text>
+          </Pressable>
           <FlatList
             data={Object.values(foodToAdd)}
-            renderItem={({ item }) => <Text className="bg-gray-800 p-4 font-bold text-lg">{item.name}</Text>}
+            renderItem={({ item }) => (
+              <View className="flex-row justify-between rounded bg-gray-800 p-4">
+                <Text className="text-lg font-bold text-white">{item.name}</Text>
+                <Text className="text-lg font-bold text-white">
+                  {item.totalAmount} {item.unit}
+                </Text>
+              </View>
+            )}
           />
         </View>
       );

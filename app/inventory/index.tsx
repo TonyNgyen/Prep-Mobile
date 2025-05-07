@@ -15,8 +15,8 @@ export default function Inventory() {
   const { user } = useAuth();
   const height = useHeaderHeight();
 
-  const handleAddInventory = () => {
-    console.log('Adding to Inventory');
+  const handleAddInventory = (newInventory: UserInventory) => {
+    setInventory(newInventory);
   };
 
   useEffect(() => {
@@ -55,6 +55,7 @@ export default function Inventory() {
         <Text className="text-xl font-semibold text-blue-600">Add to Inventory</Text>
       </Pressable>
       <AddInventoryModal
+        userId={user?.id}
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onConfirm={handleAddInventory}

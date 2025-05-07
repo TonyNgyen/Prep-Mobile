@@ -1,4 +1,4 @@
-import { InventoryIngredient, InventoryRecipe, Recipe } from '~/types';
+import { InventoryIngredient, InventoryRecipe, Recipe, UserInventory } from '~/types';
 import { supabase } from '~/utils/supabase';
 
 const fetchUserInventory = async (userId: string | undefined) => {
@@ -77,4 +77,19 @@ const addRecipeToInventory = (
   return [true, 'Successful'];
 };
 
-export { fetchUserInventory, addIngredientToInventory, addRecipeToInventory };
+const updateUserInventory = async (inventory: UserInventory, userId: string) => {
+  try {
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ inventory })
+      .eq('uid', userId);
+
+    if (updateError) {
+      console.log(updateError);
+      return false;
+    }
+    return true;
+  } catch (error) {}
+};
+
+export { fetchUserInventory, addIngredientToInventory, addRecipeToInventory, updateUserInventory };

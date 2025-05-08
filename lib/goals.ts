@@ -1,30 +1,100 @@
 import { supabase } from '~/utils/supabase';
 
-async function updateGoals(newGoal: Record<string, any>, userId: string) {
-  const { data: existingData, error: fetchError } = await supabase
-    .from('users')
-    .select('nutritionalGoals')
-    .eq('uid', userId)
-    .single();
-
-  if (fetchError) {
-    console.error('Error fetching existing goals:', fetchError);
-    return null;
+async function fetchUserNutritionalGoals(userId: string | undefined) {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('nutritionalGoals')
+      .eq('uid', userId)
+      .single();
+    if (!data) {
+      return {};
+    }
+    if (error) console.log(error);
+    return data['nutritionalGoals'];
+  } catch (error) {
+    console.log(error);
   }
-
-  const updatedGoals = { ...existingData.nutritionalGoals, ...newGoal };
-
-  const { data, error: updateError } = await supabase
-    .from('users')
-    .update({ nutritionalGoals: updatedGoals })
-    .eq('uid', userId)
-    .select();
-
-  if (updateError) {
-    console.error('Error updating JSONB column:', updateError);
-    return null;
-  }
-
-  console.log('Successfully updated goals');
-  return data;
 }
+
+async function fetchUserDayNutritionalHistory(date: string, userId: string | undefined) {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('nutritionalHistory')
+      .eq('uid', userId)
+      .single();
+    if (!data) {
+      return {};
+    }
+    if (error) console.log(error);
+    return data['nutritionalHistory'][date]
+      ? data['nutritionalHistory'][date]
+      : {
+          calories: 0,
+          protein: 0,
+          totalFat: 0,
+          saturatedFat: 0,
+          polyunsaturatedFat: 0,
+          monounsaturatedFat: 0,
+          transFat: 0,
+          cholesterol: 0,
+          sodium: 0,
+          potassium: 0,
+          totalCarbohydrates: 0,
+          dietaryFiber: 0,
+          totalSugars: 0,
+          addedSugars: 0,
+          sugarAlcohols: 0,
+          vitaminA: 0,
+          vitaminC: 0,
+          vitaminD: 0,
+          calcium: 0,
+          iron: 0,
+          extraNutrition: {},
+        };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function updateUserNutritionalGoals(
+  newGoal: Record<string, any>,
+  userId: string | undefined
+) {
+  try {
+    const { data: existingData, error: fetchError } = await supabase
+      .from('users')
+      .select('nutritionalGoals')
+      .eq('uid', userId)
+      .single();
+
+    if (fetchError) {
+      console.log('Error fetching existing goals:', fetchError);
+      return false;
+    }
+
+    const updatedGoals = {
+      ...(existingData?.nutritionalGoals || {}),
+      ...newGoal,
+    };
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ nutritionalGoals: updatedGoals })
+      .eq('uid', userId);
+
+    if (updateError) {
+      console.log('Error updating nutritional goals:', updateError);
+      return false;
+    }
+
+    console.log('Nutritional goals updated successfully:', updatedGoals);
+    return true;
+  } catch (error) {
+    console.log('Error:', error);
+    return false;
+  }
+}
+
+export { fetchUserNutritionalGoals, fetchUserDayNutritionalHistory, updateUserNutritionalGoals };

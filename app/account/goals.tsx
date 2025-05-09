@@ -80,7 +80,13 @@ export default function Goals() {
 
   return (
     <View className="flex-1 p-4">
-      <Stack.Screen options={{ title: 'Goals' }} />
+      <Stack.Screen
+        options={{
+          title: 'Goals',
+          headerBackButtonDisplayMode: 'minimal',
+          headerTintColor: 'black',
+        }}
+      />
       <FlatList
         data={Object.entries(nutritionalGoals)}
         keyExtractor={(item) => item[0]}

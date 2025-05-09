@@ -47,20 +47,20 @@ export default function GoalCard({
       onPress={!isEditing ? onEdit : undefined}>
       <View className="flex-row items-center justify-between">
         <View>
-          <Text className="text-base font-semibold text-gray-900">{formattedLabel}</Text>
+          <Text className="text-base font-semibold text-gray-800">{formattedLabel}</Text>
           <Text className="mt-1 text-xs text-gray-500">Today: {current ?? 0}</Text>
         </View>
         {isEditing ? (
           <TextInput
-            className="w-20 rounded-lg border border-gray-300 p-2 text-right text-gray-900"
+            className="w-20 rounded-lg border border-gray-300 p-2 text-right text-gray-800"
             style={{ fontSize: 16, fontWeight: 'bold' }}
             value={String(localGoal)}
             onChangeText={handleInputChange}
             keyboardType="numeric"
           />
         ) : (
-          <View className="flex-row items-center gap-2">
-            <Text className="text-xl font-bold text-gray-900">{goal}</Text>
+          <View className="flex-row items-center gap-3">
+            <Text className="text-xl font-bold text-gray-800">{goal}</Text>
             <Feather name="edit-2" size={16} color="#9ca3af" />
           </View>
         )}

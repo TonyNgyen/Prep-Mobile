@@ -52,7 +52,7 @@ export default function Inventory() {
       <Pressable
         onPress={() => setModalVisible(true)}
         className="absolute bottom-0 left-0 right-0 flex-row items-center justify-center border-t-2 border-gray-300 bg-white p-5 pb-10">
-        <Text className="text-xl font-semibold text-blue-600">Add to Inventory</Text>
+        <Text className="text-xl font-semibold text-gray-800">Add to Inventory</Text>
       </Pressable>
       <AddInventoryModal
         userId={user?.id}

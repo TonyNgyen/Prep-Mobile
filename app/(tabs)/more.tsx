@@ -13,7 +13,7 @@ export default function More() {
   return (
     <>
       <Stack.Screen options={{ title: 'More' }} />
-      <View className='gap-5 p-5'>
+      <View className='gap-5 p-4'>
         {links.map((item) => (
           <Link href={item.href} key={item.href} asChild>
             <Pressable>

@@ -16,6 +16,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useAuth } from '~/contexts/AuthProvider';
 import { Ingredient } from '~/types';
 import Feather from '@expo/vector-icons/Feather';
+import { generateRandomId } from '~/lib/functions';
 
 type AddIngredientModalProps = {
   visible: boolean;
@@ -102,6 +103,40 @@ export default function AddIngredientModal({
 
   const requiredFields = ['servingsPerContainer', 'calories', 'servingSize', 'name'];
 
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      brand: '',
+      servingSize: null,
+      servingUnit: 'g',
+      servingsPerContainer: null,
+      pricePerContainer: null,
+      calories: null,
+      protein: null,
+      totalFat: null,
+      saturatedFat: null,
+      polyunsaturatedFat: null,
+      monounsaturatedFat: null,
+      transFat: null,
+      cholesterol: null,
+      sodium: null,
+      potassium: null,
+      totalCarbohydrates: null,
+      dietaryFiber: null,
+      totalSugars: null,
+      addedSugars: null,
+      sugarAlcohols: null,
+      vitaminA: null,
+      vitaminC: null,
+      vitaminD: null,
+      calcium: null,
+      iron: null,
+    });
+    setExtraNutrition({ label: '', unit: 'g', value: '' });
+    setAllExtras({});
+    setAddingExtra(false);
+  };
+
   const handleChange = (name: keyof FormDataType, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -148,10 +183,11 @@ export default function AddIngredientModal({
         onConfirm({
           ...formData,
           extraNutrition: allExtras,
-          id: 'new',
+          id: ingredientId,
           servingSize: formData.servingSize ?? 0,
           servingsPerContainer: formData.servingsPerContainer ?? 0,
         });
+        resetForm();
         onClose();
       }
     } catch (error) {

@@ -15,20 +15,14 @@ export default function IngredientListItem({ ingredient }: Props) {
   return (
     <View className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
       <TouchableOpacity
-        className={`flex-row items-center justify-between bg-gray-800 px-4 py-3 ${
-          open ? 'rounded-b-none' : 'rounded-md'
-        }`}
+        className={`flex-row items-center justify-between bg-gray-800 px-4 py-3 ${open ? 'rounded-b-none' : 'rounded-md'}`}
         onPress={() => setOpen(!open)}>
-        <View className="flex-col items-start gap-1">
+        <View className="flex-1 flex-col items-start gap-1">
           <Text className="text-xl font-semibold text-white">{ingredient.name}</Text>
           {ingredient.brand && <Text className="text-m text-gray-200">{ingredient.brand}</Text>}
         </View>
 
-        {open ? (
-          <Feather name="chevron-up" size={24} color="white" />
-        ) : (
-          <Feather name="chevron-down" size={24} color="white" />
-        )}
+        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={24} color="white" />
       </TouchableOpacity>
 
       {open && (

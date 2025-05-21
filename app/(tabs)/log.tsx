@@ -1,11 +1,40 @@
 import React, { useState, useLayoutEffect, useEffect } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { format, addDays } from 'date-fns';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { format, addDays, isToday, isYesterday, isTomorrow } from 'date-fns';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserDailyMealHistory } from '~/lib/meals';
 import { Dropdown } from 'react-native-element-dropdown';
+
+const nutritionFields = [
+  'calories',
+  'protein',
+  'totalFat',
+  'saturatedFat',
+  'polyunsaturatedFat',
+  'monounsaturatedFat',
+  'transFat',
+  'cholesterol',
+  'sodium',
+  'potassium',
+  'totalCarbohydrates',
+  'dietaryFiber',
+  'totalSugars',
+  'addedSugars',
+  'sugarAlcohols',
+  'vitaminA',
+  'vitaminC',
+  'vitaminD',
+  'calcium',
+  'iron',
+];
+
+// Optional: map to friendlier labels
+const nutritionOptions = nutritionFields.map((key) => ({
+  label: key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase()), // e.g., totalFat → Total Fat
+  value: key,
+}));
 
 export default function DateHeader() {
   const navigation = useNavigation();
@@ -13,6 +42,8 @@ export default function DateHeader() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dailyMealInformation, setDailyMealInformation] = useState();
+  const [selected, setSelected] = useState('calories');
+  const [isFocus, setIsFocus] = useState(false);
 
   useEffect(() => {
     const fetchDailyMealInformation = async () => {
@@ -26,11 +57,16 @@ export default function DateHeader() {
   });
 
   useLayoutEffect(() => {
+    const getTitle = () => {
+      if (isToday(selectedDate)) return 'Today';
+      if (isYesterday(selectedDate)) return 'Yesterday';
+      if (isTomorrow(selectedDate)) return 'Tomorrow';
+      return format(selectedDate, 'EEEE, MMM d');
+    };
+
     navigation.setOptions({
       headerTitle: () => (
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#222' }}>
-          {format(selectedDate, 'EEEE, MMM d')}
-        </Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: '#222' }}>{getTitle()}</Text>
       ),
       headerLeft: () => (
         <Pressable
@@ -53,7 +89,44 @@ export default function DateHeader() {
 
   return (
     <View>
-      <Text>Log</Text>
+      <Dropdown
+        style={[styles.dropdown, isFocus && { borderColor: '#6c5ce7' }]}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        data={nutritionOptions}
+        maxHeight={300}
+        labelField="label"
+        valueField="value"
+        value={selected}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        onChange={(item) => {
+          setSelected(item.value);
+          setIsFocus(false);
+        }}
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  dropdown: {
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'white',
+  },
+  placeholderStyle: {
+    color: '#999',
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    color: '#333',
+    fontSize: 16,
+  },
+});

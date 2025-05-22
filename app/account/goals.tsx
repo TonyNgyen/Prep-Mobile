@@ -16,7 +16,7 @@ import {
 import { NutritionFacts } from '~/types';
 import { format } from 'date-fns';
 import {
-  fetchUserDayNutritionalHistory,
+  fetchUserDailyNutritionalHistory,
   fetchUserNutritionalGoals,
   updateUserNutritionalGoals,
 } from '~/lib/goals';
@@ -61,7 +61,7 @@ export default function Goals() {
   useEffect(() => {
     const fetch = async () => {
       const fetchGoals = await fetchUserNutritionalGoals(user?.id);
-      const fetchHistory = await fetchUserDayNutritionalHistory(today, user?.id);
+      const fetchHistory = await fetchUserDailyNutritionalHistory(today, user?.id);
       setNutritionalGoals(fetchGoals);
       setOriginalGoals(fetchGoals);
       setNutritionalHistory(fetchHistory);

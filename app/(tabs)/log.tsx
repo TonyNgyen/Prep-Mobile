@@ -6,6 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserDailyMealHistory } from '~/lib/meals';
 import { Dropdown } from 'react-native-element-dropdown';
+import { fetchUserDailyNutritionalHistory, fetchUserNutritionalGoals } from '~/lib/goals';
+import NutritionalGoalDisplay from '~/components/NutritionalGoalDisplay';
+import MealHistory from '~/components/MealHistory';
 
 const nutritionFields = [
   'calories',
@@ -42,9 +45,11 @@ export default function DateHeader() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dailyMealInformation, setDailyMealInformation] = useState();
-  const [selected, setSelected] = useState('calories');
+  const [selectedNutritionalValue, setSelectedNutritionalValue] = useState('calories');
   const [isFocus, setIsFocus] = useState(false);
-
+  const [currentNutritionalValue, setCurrentNutritionalValue] = useState<number>(0);
+  const [nutritionalGoals, setNutritionalGoals] = useState<Record<string, number>>({});
+  // const [currentAllNutritionalValues, setCurrentAllNutritionalValues] =
   useEffect(() => {
     const fetchDailyMealInformation = async () => {
       const data = await fetchUserDailyMealHistory(
@@ -53,8 +58,22 @@ export default function DateHeader() {
       );
       setDailyMealInformation(data);
     };
+    const fetchGoals = async () => {
+      const fetchGoal = await fetchUserNutritionalGoals(user?.id);
+      setNutritionalGoals(fetchGoal);
+    };
+
+    const fetchCurrentNutritionalValues = async () => {
+      const fetchNutritionalValues = await fetchUserDailyNutritionalHistory(
+        selectedDate.toLocaleDateString('en-CA'),
+        user?.id
+      );
+      setCurrentNutritionalValue(fetchNutritionalValues[selectedNutritionalValue]);
+    };
     fetchDailyMealInformation();
-  });
+    fetchGoals();
+    fetchCurrentNutritionalValues();
+  }, []);
 
   useLayoutEffect(() => {
     const getTitle = () => {
@@ -88,23 +107,32 @@ export default function DateHeader() {
   }, [navigation, selectedDate]);
 
   return (
-    <View>
-      <Dropdown
-        style={[styles.dropdown, isFocus && { borderColor: '#6c5ce7' }]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        data={nutritionOptions}
-        maxHeight={300}
-        labelField="label"
-        valueField="value"
-        value={selected}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setIsFocus(false)}
-        onChange={(item) => {
-          setSelected(item.value);
-          setIsFocus(false);
-        }}
-      />
+    <View className="flex-1 p-4">
+      <View className="flex flex-col">
+        <Dropdown
+          style={[styles.dropdown, { backgroundColor: 'white' }]}
+          containerStyle={{ backgroundColor: 'white' }}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          data={nutritionOptions}
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          value={selectedNutritionalValue}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={(item) => {
+            setSelectedNutritionalValue(item.value);
+            setIsFocus(false);
+          }}
+        />
+        <NutritionalGoalDisplay
+          nutritionalValue={selectedNutritionalValue}
+          goal={nutritionalGoals?.[selectedNutritionalValue] ?? 0}
+          current={currentNutritionalValue ?? 0}
+        />
+        <MealHistory userId={user?.id} date={selectedDate} />
+      </View>
     </View>
   );
 }
@@ -115,9 +143,12 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
+    borderColor: '#ddd',
+    borderBottomWidth: 1,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     paddingHorizontal: 12,
     backgroundColor: 'white',
   },

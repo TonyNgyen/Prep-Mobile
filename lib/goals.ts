@@ -17,7 +17,7 @@ async function fetchUserNutritionalGoals(userId: string | undefined) {
   }
 }
 
-async function fetchUserDayNutritionalHistory(date: string, userId: string | undefined) {
+async function fetchUserDailyNutritionalHistory(date: string, userId: string | undefined) {
   try {
     const { data, error } = await supabase
       .from('users')
@@ -97,4 +97,4 @@ async function updateUserNutritionalGoals(
   }
 }
 
-export { fetchUserNutritionalGoals, fetchUserDayNutritionalHistory, updateUserNutritionalGoals };
+export { fetchUserNutritionalGoals, fetchUserDailyNutritionalHistory, updateUserNutritionalGoals };

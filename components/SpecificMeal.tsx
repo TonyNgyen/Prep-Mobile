@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { SpecificMealEntry } from '~/types';
-
-import LogFoodForm from '~/components/dataForms/logFoodForm/LogFoodForm';
-import SpecificFood from './specificFood/SpecificFood';
-import EditSpecificFood from './editSpecificFood/EditSpecificFood';
+import SpecificFood from "./SpecificFood";
+import EditSpecificFood from "./EditSpecificFood";
 
 type SpecificMealProps = {
   meal: string;

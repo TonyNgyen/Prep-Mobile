@@ -43,4 +43,10 @@ const fetchIngredientsByName = async (name: string) => {
   }
 };
 
-export { fetchUserIngredients, fetchIngredientsByName };
+const searchIngredientById = async (idSearch: string) => {
+  const { data, error } = await supabase.from('ingredients').select().eq('id', idSearch).single();
+  if (error) console.log(error);
+  return data;
+};
+
+export { fetchUserIngredients, fetchIngredientsByName, searchIngredientById };

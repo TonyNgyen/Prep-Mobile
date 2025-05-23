@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { IngredientMeal, RecipeMeal } from '~/types';
-import { deleteMealFromMealHistory, deleteMealFromNutritionalHistory } from '~/lib/data';
 import { Feather } from '@expo/vector-icons';
+import { deleteUserMealFromMealHistory, deleteUserMealFromNutritionalHistory } from "~/lib/meals";
 
 type EditSpecificFoodProps = {
   food: IngredientMeal | RecipeMeal;
@@ -14,6 +14,7 @@ export default function EditSpecificFood({ food, meal, date }: EditSpecificFoodP
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [amount, setAmount] = useState(food.totalAmount.toString());
+  
 
   const unitLabel =
     food.unit === 'x' ? (parseFloat(amount) > 1 ? 'Servings' : 'Serving') : food.unit;
@@ -72,8 +73,8 @@ export default function EditSpecificFood({ food, meal, date }: EditSpecificFoodP
                   className="border-t border-gray-200 px-4 py-2"
                   onPress={() => {
                     setDropdownVisible(false);
-                    deleteMealFromMealHistory(date, meal, food.id);
-                    deleteMealFromNutritionalHistory(date, meal, food);
+                    deleteUserMealFromMealHistory(date, meal, food.id);
+                    deleteUserMealFromNutritionalHistory(date, meal, food);
                   }}>
                   <Text className="text-red-500">Delete</Text>
                 </TouchableOpacity>

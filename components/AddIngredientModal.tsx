@@ -16,12 +16,11 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useAuth } from '~/contexts/AuthProvider';
 import { Ingredient } from '~/types';
 import Feather from '@expo/vector-icons/Feather';
-import { generateRandomId } from '~/lib/functions';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AddIngredientModalProps = {
   visible: boolean;
   onClose: () => void;
-  headerHeight: number;
   onConfirm: (ingredient: Ingredient) => void;
 };
 
@@ -60,7 +59,6 @@ const extraUnits = ['g', 'mg', '%'];
 export default function AddIngredientModal({
   visible,
   onClose,
-  headerHeight,
   onConfirm,
 }: AddIngredientModalProps) {
   const [formData, setFormData] = useState<FormDataType>({
@@ -100,6 +98,8 @@ export default function AddIngredientModal({
   }>({ label: '', unit: 'g', value: '' });
   const [allExtras, setAllExtras] = useState<Record<string, any>>({});
   const scrollViewRef = useRef<ScrollView>(null);
+  const insets = useSafeAreaInsets();
+  const nativeHeaderHeight = (Platform.OS === 'ios' ? 44 : 56) + insets.top;
 
   const requiredFields = ['servingsPerContainer', 'calories', 'servingSize', 'name'];
 
@@ -239,7 +239,10 @@ export default function AddIngredientModal({
         <View className="flex-1 bg-white">
           <View
             className="flex-row items-end justify-between border-b border-gray-200 px-4 pb-3"
-            style={{ height: headerHeight }}>
+            style={{
+              paddingTop: insets.top,
+              height: nativeHeaderHeight,
+            }}>
             <Pressable onPress={onClose}>
               <Feather name="x" size={24} color="black" />
             </Pressable>

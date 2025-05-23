@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   FlatList,
+  Platform,
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { fetchIngredientsByName } from '~/lib/ingredient';
@@ -18,11 +19,11 @@ import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
 import { addRecipe } from '~/lib/recipe';
 import Feather from '@expo/vector-icons/Feather';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AddRecipeModalProps = {
   visible: boolean;
   onClose: () => void;
-  headerHeight: number;
   onConfirm: (recipe: Recipe) => void;
   newCounter: number;
   setNewCounter: Dispatch<SetStateAction<number>>;
@@ -31,7 +32,6 @@ type AddRecipeModalProps = {
 export default function AddRecipeModal({
   visible,
   onClose,
-  headerHeight,
   onConfirm,
   newCounter,
   setNewCounter,
@@ -52,6 +52,8 @@ export default function AddRecipeModal({
       }
     >
   >({});
+  const insets = useSafeAreaInsets();
+  const nativeHeaderHeight = (Platform.OS === 'ios' ? 44 : 56) + insets.top;
   const [ingredientInformation, setIngredientInformation] = useState<Object>({});
   const [name, setName] = useState<string>('');
   const [numberOfServings, setNumberOfServings] = useState<string>('');
@@ -557,7 +559,10 @@ export default function AddRecipeModal({
         <View className="flex-1">
           <View
             className="relative flex w-full flex-row items-end justify-between border-b border-gray-200"
-            style={{ height: headerHeight }}>
+            style={{
+              paddingTop: insets.top,
+              height: nativeHeaderHeight,
+            }}>
             {renderHeader()}
           </View>
           {renderPage()}

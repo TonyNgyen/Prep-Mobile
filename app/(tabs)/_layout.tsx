@@ -15,54 +15,70 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ingredient, Recipe, UserInventory } from '~/types';
+import AddIngredientModal from '~/components/AddIngredientModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AddRecipeModal from '~/components/AddRecipeModal';
+import AddInventoryModal from '~/components/AddInventoryModal';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const ACTIONS = [
-  {
-    key: 'log-food',
-    label: 'Log Food',
-    icon: <MaterialIcons name="book" size={36} color="#1F2937" />,
-    onPress: () => console.log('Add Food pressed'),
-  },
-  {
-    key: 'add-recipe',
-    label: 'Add Recipe',
-    icon: <MaterialCommunityIcons name="silverware" size={36} color="#1F2937" />,
-    onPress: () => console.log('Add Exercise pressed'),
-  },
-  {
-    key: 'add-ingredient',
-    label: 'Add Ingredient',
-    icon: <MaterialCommunityIcons name="food-drumstick" size={36} color="#1F2937" />,
-    onPress: () => console.log('Add Weight pressed'),
-  },
-  {
-    key: 'add-inventory',
-    label: 'Add Inventory',
-    icon: <MaterialIcons name="inventory" size={36} color="#1F2937" />,
-    onPress: () => console.log('Add Weight pressed'),
-  },
-  // Add more actions as needed
-];
-
 export default function TabLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(200)).current;
 
-  // Animated value to slide modal content vertically
-  const slideAnim = useRef(new Animated.Value(200)).current; // starts off screen below
+  const [ingredientModalVisible, setIngredientModalVisible] = useState(false);
+  const handleAddIngredient = (newIngredient: Ingredient) => {
+    return;
+  };
+
+  const [recipeModalVisible, setRecipeModalVisible] = useState(false);
+  const [newCounter, setNewCounter] = useState(0);
+  const handleAddRecipe = (newRecipe: Recipe) => {
+    return;
+  };
+
+  const [inventoryModalVisible, setInventoryModalVisible] = useState(false);
+  const handleAddInventory = (newInventory: UserInventory) => {
+    return;
+  };
+
+  const ACTIONS = [
+    {
+      key: 'log-food',
+      label: 'Log Food',
+      icon: <MaterialIcons name="book" size={36} color="#1F2937" />,
+      onPress: () => console.log('Add Food pressed'),
+    },
+    {
+      key: 'add-recipe',
+      label: 'Add Recipe',
+      icon: <MaterialCommunityIcons name="silverware" size={36} color="#1F2937" />,
+      onPress: () => setRecipeModalVisible(true),
+    },
+    {
+      key: 'add-ingredient',
+      label: 'Add Ingredient',
+      icon: <MaterialCommunityIcons name="food-drumstick" size={36} color="#1F2937" />,
+      onPress: () => setIngredientModalVisible(true),
+    },
+    {
+      key: 'add-inventory',
+      label: 'Add Inventory',
+      icon: <MaterialIcons name="inventory" size={36} color="#1F2937" />,
+      onPress: () => setInventoryModalVisible(true),
+    },
+  ];
 
   useEffect(() => {
     if (modalVisible) {
-      // Slide up
       Animated.timing(slideAnim, {
         toValue: 0,
         duration: 200,
         useNativeDriver: true,
       }).start();
     } else {
-      // Slide down (optional: reset after animation finishes)
       Animated.timing(slideAnim, {
         toValue: 200,
         duration: 200,
@@ -143,7 +159,6 @@ export default function TabLayout() {
         />
       </Tabs>
 
-      {/* Floating Add Button */}
       <Pressable
         onPress={() => setModalVisible(true)}
         className="absolute bottom-[30px] left-1/2 z-50 -translate-x-1/2 items-center justify-center rounded-full bg-gray-800 p-3"
@@ -151,18 +166,16 @@ export default function TabLayout() {
         <Ionicons name="add" size={30} color="white" />
       </Pressable>
 
-      {/* Modal */}
       <Modal
-        animationType="fade" // changed to fade for background fade effect
+        animationType="fade"
         transparent
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}>
-        {/* Capture tap outside modal to close */}
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View
             style={{
               flex: 1,
-              backgroundColor: 'rgba(0, 0, 0, 0.2)', // black with 60% opacity fade
+              backgroundColor: 'rgba(0, 0, 0, 0.2)',
               justifyContent: 'flex-end',
             }}>
             <TouchableWithoutFeedback>
@@ -174,7 +187,6 @@ export default function TabLayout() {
                   paddingHorizontal: 12,
                   paddingTop: 20,
                   paddingBottom: 40,
-
                   transform: [{ translateY: slideAnim }],
                 }}>
                 <Text
@@ -210,6 +222,24 @@ export default function TabLayout() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      <AddIngredientModal
+        visible={ingredientModalVisible}
+        onClose={() => setIngredientModalVisible(false)}
+        onConfirm={handleAddIngredient}
+      />
+      <AddRecipeModal
+        visible={recipeModalVisible}
+        onClose={() => setRecipeModalVisible(false)}
+        onConfirm={handleAddRecipe}
+        newCounter={newCounter}
+        setNewCounter={setNewCounter}
+      />
+      <AddInventoryModal
+        userId={user?.id}
+        visible={inventoryModalVisible}
+        onClose={() => setInventoryModalVisible(false)}
+        onConfirm={handleAddInventory}
+      />
     </View>
   );
 }

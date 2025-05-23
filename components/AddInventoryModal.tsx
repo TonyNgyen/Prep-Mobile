@@ -1,5 +1,4 @@
-import Feather from '@expo/vector-icons/Feather';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Keyboard,
   Modal,
@@ -9,21 +8,24 @@ import {
   Pressable,
   TextInput,
   FlatList,
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 import { fetchIngredientsByName } from '~/lib/ingredient';
 import { fetchRecipesByName } from '~/lib/recipe';
+import { fetchUserInventory, updateUserInventory } from '~/lib/inventory';
 import { Ingredient, InventoryIngredient, InventoryRecipe, Recipe, UserInventory } from '~/types';
 import IngredientAddToInventoryItem from './IngredientItem/IngredientAddToInventoryItem';
 import RecipeAddToInventoryItem from './RecipeItem/RecipeAddToInventoryItem';
-import { updateUserInventory } from '~/lib/inventory';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   userId: string | undefined;
   visible: boolean;
   onClose: () => void;
-  headerHeight: number;
   onConfirm: (newInventory: UserInventory) => void;
-  currentInventory: UserInventory;
+  currentInventory?: UserInventory | null;
 };
 
 type SearchResultType = {
@@ -37,10 +39,17 @@ export default function AddInventoryModal({
   userId,
   visible,
   onClose,
-  headerHeight,
   onConfirm,
   currentInventory,
 }: Props) {
+  // Local state for inventory, initialize with currentInventory if available
+  const [localInventory, setLocalInventory] = useState<UserInventory | null>(
+    currentInventory ?? null
+  );
+  const [loadingInventory, setLoadingInventory] = useState(false);
+  const insets = useSafeAreaInsets();
+  const nativeHeaderHeight = (Platform.OS === 'ios' ? 44 : 56) + insets.top;
+
   const [page, setPage] = useState('first');
   const [search, setSearch] = useState<string>('');
   const [searchResult, setSearchResult] = useState<SearchResultType>({
@@ -49,9 +58,25 @@ export default function AddInventoryModal({
   });
   const [foodToAdd, setFoodToAdd] = useState<ItemsToAdd>({});
 
-  const handleAlert = () => {
-    return true;
-  };
+  // Fetch inventory if missing and modal just became visible
+  useEffect(() => {
+    if (!visible) return; // only fetch on modal open
+    if (localInventory !== null) return; // already have it
+
+    if (!userId) {
+      alert('User ID missing, cannot load inventory');
+      return;
+    }
+
+    const fetchInventory = async () => {
+      setLoadingInventory(true);
+      const fetched = await fetchUserInventory(userId);
+      setLocalInventory(fetched);
+      setLoadingInventory(false);
+    };
+
+    fetchInventory();
+  }, [visible, localInventory, userId]);
 
   const reset = () => {
     setPage('first');
@@ -61,16 +86,47 @@ export default function AddInventoryModal({
   };
 
   const handleSubmit = async () => {
-    if (userId == undefined) {
+    if (!userId) {
       alert('Error: Please Contact Tony');
       return;
     }
-    if (await updateUserInventory(currentInventory, userId)) {
-      onConfirm(currentInventory);
+
+    if (!localInventory) {
+      alert('Inventory not loaded yet');
+      return;
     }
-    reset();
-    onClose();
+
+    // Update inventory by merging new items to add
+    const updatedInventory: UserInventory = {
+      ...localInventory,
+      ...foodToAdd, // or merge logic depending on your data shape
+    };
+
+    const success = await updateUserInventory(updatedInventory, userId);
+    if (success) {
+      onConfirm(updatedInventory);
+      reset();
+      onClose();
+      setLocalInventory(null); // clear local inventory on close, optionally
+    } else {
+      alert('Failed to update inventory');
+    }
   };
+
+  // Render loading spinner if inventory loading
+  if (loadingInventory) {
+    return (
+      <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
+        <View className="flex-1 items-center justify-center bg-white">
+          <ActivityIndicator size="large" />
+          <Text>Loading inventory...</Text>
+        </View>
+      </Modal>
+    );
+  }
+
+  // Then your renderHeader(), addIngredient, addRecipe, renderPage remain mostly unchanged,
+  // just replace currentInventory references with localInventory.
 
   const renderHeader = () => {
     if (page == 'first') {
@@ -79,13 +135,8 @@ export default function AddInventoryModal({
           <Pressable
             onPress={() => {
               onClose();
-              setFoodToAdd({});
-              setSearch('');
-              setSearchResult({
-                recipes: [],
-                ingredients: [],
-              });
-              setPage('first');
+              reset();
+              setLocalInventory(null);
             }}
             className="px-4 pb-3">
             <Feather name="x" size={24} color="black" />
@@ -93,11 +144,7 @@ export default function AddInventoryModal({
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
             Add to Inventory
           </Text>
-          <Pressable
-            onPress={() => {
-              handleAlert() && setPage('review');
-            }}
-            className="px-4 pb-3">
+          <Pressable onPress={() => setPage('review')} className="px-4 pb-3">
             <Feather name="chevron-right" size={24} color="black" />
           </Pressable>
         </>
@@ -111,7 +158,7 @@ export default function AddInventoryModal({
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
             Add to Inventory
           </Text>
-          <Pressable onPress={() => handleSubmit()} className="px-4 pb-3">
+          <Pressable onPress={handleSubmit} className="px-4 pb-3">
             <Feather name="check" size={24} color="black" />
           </Pressable>
         </>
@@ -120,11 +167,8 @@ export default function AddInventoryModal({
   };
 
   const handleSearch = async () => {
-    let ingredientData: Ingredient[] = [];
-    let recipeData: Recipe[] = [];
-
-    ingredientData = (await fetchIngredientsByName(search)) ?? [];
-    recipeData = (await fetchRecipesByName(search)) ?? [];
+    const ingredientData = (await fetchIngredientsByName(search)) ?? [];
+    const recipeData = (await fetchRecipesByName(search)) ?? [];
 
     setSearchResult({
       recipes: recipeData,
@@ -155,10 +199,7 @@ export default function AddInventoryModal({
       },
     }));
     setSearch('');
-    setSearchResult({
-      recipes: [],
-      ingredients: [],
-    });
+    setSearchResult({ recipes: [], ingredients: [] });
   };
 
   const addRecipe = (
@@ -182,10 +223,7 @@ export default function AddInventoryModal({
       },
     }));
     setSearch('');
-    setSearchResult({
-      recipes: [],
-      ingredients: [],
-    });
+    setSearchResult({ recipes: [], ingredients: [] });
   };
 
   const renderPage = () => {
@@ -212,7 +250,7 @@ export default function AddInventoryModal({
               <IngredientAddToInventoryItem
                 ingredient={item}
                 add={addIngredient}
-                inventory={currentInventory}
+                inventory={localInventory ?? {}}
               />
             )}
           />
@@ -222,7 +260,7 @@ export default function AddInventoryModal({
               <RecipeAddToInventoryItem
                 recipe={item}
                 add={addRecipe}
-                inventory={currentInventory}
+                inventory={localInventory ?? {}}
               />
             )}
           />
@@ -231,9 +269,6 @@ export default function AddInventoryModal({
     } else {
       return (
         <View className="p-4">
-          <Pressable onPress={() => console.log(currentInventory)}>
-            <Text className="bg-red-200 p-5">Test</Text>
-          </Pressable>
           <FlatList
             data={Object.values(foodToAdd)}
             renderItem={({ item }) => (
@@ -256,7 +291,10 @@ export default function AddInventoryModal({
         <View className="flex-1 bg-white">
           <View
             className="relative flex w-full flex-row items-end justify-between border-b border-gray-200"
-            style={{ height: headerHeight }}>
+            style={{
+              paddingTop: insets.top,
+              height: nativeHeaderHeight,
+            }}>
             {renderHeader()}
           </View>
           {renderPage()}

@@ -50,7 +50,6 @@ export default function Recipes() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onConfirm={handleAddRecipe}
-        headerHeight={height}
         newCounter={newCounter}
         setNewCounter={setNewCounter}
       />

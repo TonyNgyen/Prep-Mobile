@@ -59,7 +59,6 @@ export default function Inventory() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onConfirm={handleAddInventory}
-        headerHeight={height}
         currentInventory={inventory}
       />
     </View>

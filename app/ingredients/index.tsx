@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserIngredients } from '~/lib/ingredient';
-import { useHeaderHeight } from '@react-navigation/elements';
 import AddIngredientModal from '~/components/AddIngredientModal';
 import { Ingredient } from '~/types';
 import IngredientListItem from '~/components/IngredientItem/IngredientListItem';
@@ -12,7 +11,6 @@ export default function Ingredients() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const { user } = useAuth();
-  const height = useHeaderHeight();
 
   useEffect(() => {
     const fetch = async () => {
@@ -52,7 +50,6 @@ export default function Ingredients() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onConfirm={handleAddIngredient}
-        headerHeight={height}
       />
     </View>
   );

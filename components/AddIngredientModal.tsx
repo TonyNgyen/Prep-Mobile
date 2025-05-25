@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Modal,
   View,
@@ -16,7 +16,6 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useAuth } from '~/contexts/AuthProvider';
 import { Ingredient } from '~/types';
 import Feather from '@expo/vector-icons/Feather';
-import { generateRandomId } from '~/lib/functions';
 
 type AddIngredientModalProps = {
   visible: boolean;

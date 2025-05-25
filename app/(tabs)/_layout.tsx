@@ -20,6 +20,7 @@ import AddIngredientModal from '~/components/AddIngredientModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddRecipeModal from '~/components/AddRecipeModal';
 import AddInventoryModal from '~/components/AddInventoryModal';
+import AddLogModal from '~/components/AddLogModal';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -44,12 +45,17 @@ export default function TabLayout() {
     return;
   };
 
+  const [logModalVisible, setLogModalVisible] = useState(false);
+  const handleAddLog = (newInventory: UserInventory) => {
+    return;
+  };
+
   const ACTIONS = [
     {
       key: 'log-food',
       label: 'Log Food',
       icon: <MaterialIcons name="book" size={36} color="#1F2937" />,
-      onPress: () => console.log('Add Food pressed'),
+      onPress: () => setLogModalVisible(true),
     },
     {
       key: 'add-recipe',
@@ -222,6 +228,11 @@ export default function TabLayout() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      <AddLogModal
+        isModal={true}
+        visible={logModalVisible}
+        onClose={() => setLogModalVisible(false)}
+      />
       <AddIngredientModal
         visible={ingredientModalVisible}
         onClose={() => setIngredientModalVisible(false)}

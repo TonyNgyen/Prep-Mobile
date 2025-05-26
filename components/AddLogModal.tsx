@@ -116,7 +116,11 @@ export default function AddLogModal({
             <Feather name="chevron-left" size={20} color="#222" />
           </Pressable>
 
-          <Text style={{ fontSize: 18, fontWeight: '600', color: '#222' }}>{getTitle()}</Text>
+          <Text
+            style={{ fontSize: 18, fontWeight: '600', color: '#222' }}
+            className="w-52 text-center">
+            {getTitle()}
+          </Text>
 
           <Pressable
             onPress={() => setSelectedDate((d) => addDays(d, 1))}
@@ -138,53 +142,71 @@ export default function AddLogModal({
       if (isTomorrow(selectedDate)) return 'Tomorrow';
       return format(selectedDate, 'EEEE, MMM d');
     };
+    if (!onClose) {
+      return;
+    }
     return (
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <>
         <Pressable
-          onPress={() => setSelectedDate((d) => addDays(d, -1))}
-          style={{ paddingHorizontal: 8 }}
-          hitSlop={10}>
-          <Feather name="chevron-left" size={20} color="#222" />
+          onPress={() => {
+            onClose();
+          }}
+          className="px-4 pb-3">
+          <Feather name="x" size={24} color="black" />
         </Pressable>
+        <View className="absolute bottom-0 left-1/2 -translate-x-1/2 flex-row items-center pb-3 text-lg font-semibold">
+          <Pressable
+            onPress={() => setSelectedDate((d) => addDays(d, -1))}
+            style={{ paddingHorizontal: 8 }}
+            hitSlop={10}>
+            <Feather name="chevron-left" size={20} color="#222" />
+          </Pressable>
 
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#222' }}>{getTitle()}</Text>
+          <Text
+            style={{ fontSize: 18, fontWeight: '600', color: '#222' }}
+            className="w-52 text-center">
+            {getTitle()}
+          </Text>
 
-        <Pressable
-          onPress={() => setSelectedDate((d) => addDays(d, 1))}
-          style={{ paddingHorizontal: 8 }}
-          hitSlop={10}>
-          <Feather name="chevron-right" size={20} color="#222" />
-        </Pressable>
-      </View>
+          <Pressable
+            onPress={() => setSelectedDate((d) => addDays(d, 1))}
+            style={{ paddingHorizontal: 8 }}
+            hitSlop={10}>
+            <Feather name="chevron-right" size={20} color="#222" />
+          </Pressable>
+        </View>
+      </>
     );
   };
 
   const renderBody = () => {
     return (
-      <View className="flex flex-col">
-        <Dropdown
-          style={[styles.dropdown, { backgroundColor: 'white' }]}
-          containerStyle={{ backgroundColor: 'white' }}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          data={nutritionOptions}
-          maxHeight={300}
-          labelField="label"
-          valueField="value"
-          value={selectedNutritionalValue}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          onChange={(item) => {
-            setSelectedNutritionalValue(item.value);
-            setIsFocus(false);
-          }}
-        />
-        <NutritionalGoalDisplay
-          nutritionalValue={selectedNutritionalValue}
-          goal={nutritionalGoals?.[selectedNutritionalValue] ?? 0}
-          current={currentNutritionalValue ?? 0}
-        />
-        <MealHistory userId={user?.id} date={selectedDate} />
+      <View className="flex-1 p-4">
+        <View className="flex flex-col">
+          <Dropdown
+            style={[styles.dropdown, { backgroundColor: 'white' }]}
+            containerStyle={{ backgroundColor: 'white' }}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            data={nutritionOptions}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            value={selectedNutritionalValue}
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
+            onChange={(item) => {
+              setSelectedNutritionalValue(item.value);
+              setIsFocus(false);
+            }}
+          />
+          <NutritionalGoalDisplay
+            nutritionalValue={selectedNutritionalValue}
+            goal={nutritionalGoals?.[selectedNutritionalValue] ?? 0}
+            current={currentNutritionalValue ?? 0}
+          />
+          <MealHistory userId={user?.id} date={selectedDate} />
+        </View>
       </View>
     );
   };
@@ -193,21 +215,22 @@ export default function AddLogModal({
     return (
       <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 bg-white">
+          <View className="flex-1 bg-[#f2f2f2]">
             <View
-              className="relative flex w-full flex-row items-end justify-between border-b border-gray-200"
+              className="relative flex w-full flex-row items-end justify-between border-b border-gray-200 bg-white"
               style={{
                 paddingTop: insets.top,
                 height: nativeHeaderHeight,
               }}>
               {renderHeader()}
-            </View>{' '}
-          </View>{' '}
-        </TouchableWithoutFeedback>{' '}
+            </View>
+            {renderBody()}
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   }
-  return <View className="flex-1 p-4">{renderBody()}</View>;
+  return renderBody();
 }
 
 const styles = StyleSheet.create({

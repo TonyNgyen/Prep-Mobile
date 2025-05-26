@@ -229,14 +229,14 @@ export default function AddInventoryModal({
   const renderPage = () => {
     if (page == 'first') {
       return (
-        <View className="p-4">
+        <View className="flex-1 bg-[#f2f2f2] p-4">
           <Text className="mb-1 text-lg">Food Name</Text>
           <View className="flex-row">
             <TextInput
               placeholder="Ingredient Name"
               value={search}
               onChangeText={(v) => setSearch(v)}
-              className="mb-2 h-[40px] flex-1 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+              className="mb-2 h-[40px] flex-1 rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
             />
             <Pressable
               className="flex h-[40px] items-center justify-center rounded-r bg-gray-800 px-5"
@@ -268,7 +268,7 @@ export default function AddInventoryModal({
       );
     } else {
       return (
-        <View className="p-4">
+        <View className="flex-1 bg-[#f2f2f2] p-4">
           <FlatList
             data={Object.values(foodToAdd)}
             renderItem={({ item }) => (

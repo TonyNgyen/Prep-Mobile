@@ -219,7 +219,7 @@ export default function AddIngredientModal({
         {required && <Text className="text-sm">(Required)</Text>}
       </View>
       <TextInput
-        className="h-[40px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
+        className="h-[40px] w-1/3 rounded border border-gray-300 bg-white p-2 text-right placeholder:text-gray-300"
         placeholder={required ? 'Required' : 'Optional'}
         keyboardType="numeric"
         value={formData[field]?.toString() || ''}
@@ -236,9 +236,9 @@ export default function AddIngredientModal({
   return (
     <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="flex-1 bg-white">
+        <View className="flex-1 bg-[#f2f2f2]">
           <View
-            className="flex-row items-end justify-between border-b border-gray-200 px-4 pb-3"
+            className="flex-row items-end justify-between border-b border-gray-200 bg-white px-4 pb-3"
             style={{
               paddingTop: insets.top,
               height: nativeHeaderHeight,
@@ -264,7 +264,7 @@ export default function AddIngredientModal({
                   placeholder="Ingredient Name"
                   value={formData.name}
                   onChangeText={(v) => setFormData((prev) => ({ ...prev, name: v }))}
-                  className="mb-2 h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                  className="mb-2 h-[40px] rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
                   onFocus={() => {
                     if (scrollViewRef.current) {
                       scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
@@ -276,7 +276,7 @@ export default function AddIngredientModal({
                   placeholder="Brand"
                   value={formData.brand}
                   onChangeText={(v) => setFormData((prev) => ({ ...prev, brand: v }))}
-                  className="mb-2 h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                  className="mb-2 h-[40px] rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
                   onFocus={() => {
                     if (scrollViewRef.current) {
                       scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
@@ -290,7 +290,7 @@ export default function AddIngredientModal({
                   <View className="w-1/2 pr-1">
                     <TextInput
                       placeholder="Serving Size"
-                      className="h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                      className="h-[40px] rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
                       keyboardType="numeric"
                       value={formData.servingSize?.toString() || ''}
                       onChangeText={(v) => handleChange('servingSize', v)}
@@ -309,6 +309,7 @@ export default function AddIngredientModal({
                         borderWidth: 1,
                         borderRadius: 4,
                         paddingHorizontal: 8,
+                        backgroundColor: 'white',
                       }}
                       placeholderStyle={{ color: 'gray' }}
                       selectedTextStyle={{ color: 'black' }}
@@ -357,7 +358,7 @@ export default function AddIngredientModal({
                       {nutrition.label} ({nutrition.unit})
                     </Text>
                     <TextInput
-                      className="h-[40px] w-1/3 rounded border border-gray-300 p-2 text-right placeholder:text-gray-300"
+                      className="h-[40px] w-1/3 rounded border border-gray-300 bg-white p-2 text-right placeholder:text-gray-300"
                       placeholder="Optional"
                       keyboardType="numeric"
                       value={nutrition.value?.toString() || ''}
@@ -378,7 +379,7 @@ export default function AddIngredientModal({
                   <View className="my-2 flex-row items-center">
                     <TextInput
                       placeholder="Nutrition Label"
-                      className="mr-2 flex-1 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                      className="mr-2 flex-1 rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
                       value={extraNutrition.label}
                       onChangeText={(v) => setExtraNutrition((prev) => ({ ...prev, label: v }))}
                       onFocus={() => {
@@ -389,7 +390,7 @@ export default function AddIngredientModal({
                     />
                     <TextInput
                       placeholder="Value"
-                      className="ml-2 w-20 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+                      className="ml-2 w-20 rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
                       keyboardType="numeric"
                       value={extraNutrition.value}
                       onChangeText={(v) => setExtraNutrition((prev) => ({ ...prev, value: v }))}
@@ -403,7 +404,7 @@ export default function AddIngredientModal({
                 )}
 
                 <Pressable
-                  className="mb-14 mt-4 rounded bg-blue-500 p-3"
+                  className="mb-14 mt-4 rounded bg-gray-800 p-3"
                   onPress={addingExtra ? addExtraNutrition : () => setAddingExtra(true)}>
                   <Text className="text-center font-semibold text-white">
                     {addingExtra ? 'Add Nutrition' : 'Add Extra Nutrition'}

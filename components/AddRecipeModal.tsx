@@ -275,7 +275,7 @@ export default function AddRecipeModal({
               placeholder="Ingredient Name"
               value={search}
               onChangeText={(v) => setSearch(v)}
-              className="mb-2 h-[40px] flex-1 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+              className="mb-2 h-[40px] flex-1 rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
             />
             <Pressable
               className="flex h-[40px] items-center justify-center rounded-r bg-gray-800 px-5"
@@ -321,14 +321,14 @@ export default function AddRecipeModal({
   const renderPage = () => {
     if (page == 'first') {
       return (
-        <View className="gap-y-2 p-4">
+        <View className="flex-1 gap-y-2 bg-[#f2f2f2] p-4">
           <View>
             <Text className="mb-1 text-lg">Recipe Name</Text>
             <TextInput
               placeholder="Required"
               value={name}
               onChangeText={(v) => setName(v)}
-              className="mb-2 h-[40px] rounded border border-gray-300 p-2 placeholder:text-gray-300"
+              className="mb-2 h-[40px] rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
             />
           </View>
 
@@ -339,7 +339,7 @@ export default function AddRecipeModal({
               value={numberOfServings}
               keyboardType="numeric"
               onChangeText={(v) => setNumberOfServings(v)}
-              className="mb-2 h-[40px] w-5/12 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+              className="mb-2 h-[40px] w-5/12 rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
             />
           </View>
           <View className="flex-row  justify-between ">
@@ -349,7 +349,7 @@ export default function AddRecipeModal({
               value={servingSize}
               onChangeText={(v) => setServingSize(v)}
               keyboardType="numeric"
-              className="mb-2 h-[40px] w-5/12 rounded border border-gray-300 p-2 placeholder:text-gray-300"
+              className="mb-2 h-[40px] w-5/12 rounded border border-gray-300 bg-white p-2 placeholder:text-gray-300"
             />
           </View>
           <View className="flex-row  justify-between ">
@@ -362,6 +362,7 @@ export default function AddRecipeModal({
                   borderWidth: 1,
                   borderRadius: 4,
                   paddingHorizontal: 8,
+                  backgroundColor: 'white',
                 }}
                 placeholderStyle={{ color: 'gray' }}
                 selectedTextStyle={{ color: 'black' }}
@@ -380,7 +381,7 @@ export default function AddRecipeModal({
       );
     } else if (page == 'ingredients') {
       return (
-        <View className="p-4">
+        <View className="flex-1 bg-[#f2f2f2] p-4">
           <View className="flex-row items-center justify-between">
             <Text className="text-3xl font-bold">Ingredients</Text>
             <Pressable
@@ -405,21 +406,21 @@ export default function AddRecipeModal({
       );
     } else {
       return (
-        <View className="flex-1 p-4">
-          <View className="flex-row gap-4">
+        <View className="flex-1 bg-[#f2f2f2] p-4">
+          <View className="w-full flex-row items-center justify-center gap-4">
             <Pressable
-              className={`flex-1 rounded border-2 border-gray-800 bg-gray-800 p-4 ${displaySetting == 'total' ? '' : 'opacity-50'}`}
+              className={`w-[48%] rounded border-2 border-gray-800 bg-gray-800 p-4 ${displaySetting == 'total' ? '' : 'opacity-50'}`}
               onPress={() => setDisplaySetting('total')}>
               <Text className={`text-center font-bold text-white`}>Total Recipe</Text>
             </Pressable>
 
             <Pressable
-              className={`flex-1 rounded border-2 border-gray-800 bg-gray-800 p-4 ${displaySetting !== 'total' ? '' : 'opacity-50'}`}
+              className={`w-[48%] rounded border-2 border-gray-800 bg-gray-800 p-4 ${displaySetting !== 'total' ? '' : 'opacity-50'}`}
               onPress={() => setDisplaySetting('perServing')}>
               <Text className={`text-center font-bold text-white`}>Per Serving</Text>
             </Pressable>
           </View>
-          <View className="mt-4 gap-2 rounded border-2 border-gray-800 p-4">
+          <View className="mt-4 gap-2 rounded border-2 border-gray-800 bg-white p-4">
             {(Object.keys(NUTRITIONAL_KEYS) as Array<keyof typeof NUTRITIONAL_KEYS>).map((key) => {
               let value = recipeNutrition[key];
 

@@ -89,4 +89,10 @@ const searchRecipeById = async (idSearch: string) => {
   return data;
 };
 
-export { fetchUserRecipes, addRecipe, fetchRecipesByName, searchRecipeById };
+const searchRecipeByName = async (recipeSearch: string) => {
+  const { data, error } = await supabase.from('recipes').select().eq('name', recipeSearch);
+  if (error) console.log(error);
+  return data;
+};
+
+export { fetchUserRecipes, addRecipe, fetchRecipesByName, searchRecipeById, searchRecipeByName };

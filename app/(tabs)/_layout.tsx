@@ -17,12 +17,9 @@ import Feather from '@expo/vector-icons/Feather';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Ingredient, Recipe, UserInventory } from '~/types';
 import AddIngredientModal from '~/components/AddIngredientModal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddRecipeModal from '~/components/AddRecipeModal';
 import AddInventoryModal from '~/components/AddInventoryModal';
-import AddLogModal from '~/components/AddLogModal';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import LogFoodForm from '~/components/AddLogModal/container';
 
 export default function TabLayout() {
   const { isAuthenticated, user } = useAuth();
@@ -228,10 +225,12 @@ export default function TabLayout() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      <AddLogModal
-        isModal={true}
+      <LogFoodForm
         visible={logModalVisible}
         onClose={() => setLogModalVisible(false)}
+        onConfirm={() => {
+          console.log('hi');
+        }}
       />
       <AddIngredientModal
         visible={ingredientModalVisible}

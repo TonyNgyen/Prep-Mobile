@@ -21,7 +21,7 @@ import MealHistory from '~/components/MealHistory';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { UserInventory } from '~/types';
 
-type AddLogModalProps = {
+type LogPageProps = {
   isModal: boolean;
   visible?: boolean;
   onClose?: () => void;
@@ -57,13 +57,13 @@ const nutritionOptions = nutritionFields.map((key) => ({
   value: key,
 }));
 
-export default function AddLogModal({
+export default function LogPage({
   isModal,
   visible,
   onClose,
   onConfirm,
   currentInventory,
-}: AddLogModalProps) {
+}: LogPageProps) {
   const navigation = useNavigation();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
@@ -182,29 +182,32 @@ export default function AddLogModal({
   const renderBody = () => {
     return (
       <View className="flex-1 p-4">
-        <View className="flex flex-col">
-          <Dropdown
-            style={[styles.dropdown, { backgroundColor: 'white' }]}
-            containerStyle={{ backgroundColor: 'white' }}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            data={nutritionOptions}
-            maxHeight={300}
-            labelField="label"
-            valueField="value"
-            value={selectedNutritionalValue}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
-            onChange={(item) => {
-              setSelectedNutritionalValue(item.value);
-              setIsFocus(false);
-            }}
-          />
-          <NutritionalGoalDisplay
-            nutritionalValue={selectedNutritionalValue}
-            goal={nutritionalGoals?.[selectedNutritionalValue] ?? 0}
-            current={currentNutritionalValue ?? 0}
-          />
+        <View className="flex flex-col gap-4">
+          <View>
+            <Dropdown
+              style={[styles.dropdown, { backgroundColor: 'white' }]}
+              containerStyle={{ backgroundColor: 'white' }}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              data={nutritionOptions}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              value={selectedNutritionalValue}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              onChange={(item) => {
+                setSelectedNutritionalValue(item.value);
+                setIsFocus(false);
+              }}
+            />
+            <NutritionalGoalDisplay
+              nutritionalValue={selectedNutritionalValue}
+              goal={nutritionalGoals?.[selectedNutritionalValue] ?? 0}
+              current={currentNutritionalValue ?? 0}
+            />
+          </View>
+
           <MealHistory userId={user?.id} date={selectedDate} />
         </View>
       </View>

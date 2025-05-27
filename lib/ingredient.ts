@@ -49,4 +49,19 @@ const searchIngredientById = async (idSearch: string) => {
   return data;
 };
 
-export { fetchUserIngredients, fetchIngredientsByName, searchIngredientById };
+const searchIngredientByName = async (ingredientSearch: string) => {
+  const { data, error } = await supabase
+    .from('ingredients')
+    .select()
+    .ilike('name', `%${ingredientSearch}%`);
+
+  if (error) console.log(error);
+  return data;
+};
+
+export {
+  fetchUserIngredients,
+  fetchIngredientsByName,
+  searchIngredientById,
+  searchIngredientByName,
+};

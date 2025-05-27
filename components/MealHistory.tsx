@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { fetchUserDailyMealHistory } from '~/lib/meals'; // Adjust path as needed
+import SpecificMeal from './SpecificMeal';
 
 type MealHistoryProps = {
   userId: string | undefined;
@@ -14,10 +15,7 @@ export default function MealHistory({ userId, date }: MealHistoryProps) {
 
   useEffect(() => {
     const fetch = async () => {
-      const fetchHistory = await fetchUserDailyMealHistory(
-        userId,
-        date.toLocaleDateString('en-CA')
-      );
+      const fetchHistory = await fetchUserDailyMealHistory(userId, '2025-04-20');
       console.log(fetchHistory);
       setCurrentDailyMeal(fetchHistory);
     };
@@ -26,21 +24,21 @@ export default function MealHistory({ userId, date }: MealHistoryProps) {
 
   return (
     <View style={styles.container}>
-      {/* {meals.map((meal) => (
+      {meals.map((meal) => (
         <SpecificMeal
           key={meal}
           meal={meal}
-          mealInformation={currentDay ? currentDay[meal] : null}
-          date={date}
+          mealInformation={currentDailyMeal ? currentDailyMeal[meal] : null}
+          date={date.toLocaleDateString('en-CA')}
         />
-      ))} */}
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12,
+    gap: 4,
     flexDirection: 'column',
   },
 });

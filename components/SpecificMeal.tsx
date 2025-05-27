@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { SpecificMealEntry } from '~/types';
-import SpecificFood from "./SpecificFood";
-import EditSpecificFood from "./EditSpecificFood";
+import SpecificFood from './SpecificFood';
+import EditSpecificFood from './EditSpecificFood';
 
 type SpecificMealProps = {
   meal: string;
@@ -18,21 +18,21 @@ export default function SpecificMeal({ meal, mealInformation, date }: SpecificMe
   const capitalizedMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
   const hasFood = mealInformation && Object.keys(mealInformation.food).length !== 0;
 
-  if (showAddForm) {
-    return (
-      <LogFoodForm
-        dateInput={date}
-        mealInput={meal}
-        isForm={true}
-        setShowAddForm={setShowAddForm}
-      />
-    );
-  }
+  // if (showAddForm) {
+  //   return (
+  //     <LogFoodForm
+  //       dateInput={date}
+  //       mealInput={meal}
+  //       isForm={true}
+  //       setShowAddForm={setShowAddForm}
+  //     />
+  //   );
+  // }
 
   return (
     <View className="mb-3 overflow-hidden rounded-xl shadow-sm">
       {/* Header */}
-      <View className="flex-row items-center justify-between rounded-t-xl bg-gray-300 px-3 py-2">
+      <View className="flex-row items-center justify-between rounded-t-xl bg-gray-200 px-3 py-2">
         <Text className="text-xl font-semibold">{capitalizedMeal}</Text>
         {!editing && (
           <TouchableOpacity onPress={() => setEditing(true)}>
@@ -42,7 +42,7 @@ export default function SpecificMeal({ meal, mealInformation, date }: SpecificMe
       </View>
 
       {/* Body */}
-      <View className="bg-gray-300/50">
+      <View className="bg-white">
         {hasFood && (
           <View className="space-y-3 px-3 py-2">
             {Object.values(mealInformation!.food).map((food, idx) =>

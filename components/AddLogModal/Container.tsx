@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { InventoryIngredient, InventoryRecipe, NutritionFacts } from '~/types';
-import Page1 from './page1';
+import Page1 from './Page1';
 import Page2 from './Page2';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,7 +25,7 @@ type LogFoodFormProps = {
 
 export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodFormProps) {
   const [page, setPage] = useState(1);
-  const [meal, setMeal] = useState('breakfast');
+  const [meal, setMeal] = useState(undefined);
   const insets = useSafeAreaInsets();
   const nativeHeaderHeight = (Platform.OS === 'ios' ? 44 : 56) + insets.top;
   const [nutrition, setNutrition] = useState<NutritionFacts>({

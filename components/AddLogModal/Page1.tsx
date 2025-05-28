@@ -12,6 +12,8 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { searchIngredientByName } from '~/lib/ingredient';
 import { searchRecipeByName } from '~/lib/recipe';
 import { Ingredient, InventoryIngredient, InventoryRecipe, NutritionFacts, Recipe } from '~/types';
+import LogRecipeInfo from '../LogRecipeInfo';
+import LogIngredientInfo from '../LogIngredientInfo';
 
 type ItemsToAdd = Record<string, InventoryIngredient | InventoryRecipe>;
 
@@ -128,6 +130,9 @@ export default function Page1({
           labelField="label"
           valueField="value"
           placeholder="Select a meal"
+          style={{ backgroundColor: '#1F2937', padding: 16, borderRadius: 6 }}
+          placeholderStyle={{ color: 'white' }}
+          selectedTextStyle={{ color: 'white' }}
         />
       </View>
 
@@ -139,7 +144,8 @@ export default function Page1({
             value={search}
             onChangeText={setSearch}
             onSubmitEditing={searchItem}
-            className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-base"
+            className="flex-1 rounded-md border border-gray-300 p-3"
+            style={{ fontSize: 16 }}
           />
           <TouchableOpacity
             onPress={searchItem}
@@ -149,7 +155,7 @@ export default function Page1({
         </View>
       </View>
 
-      {/* <FlatList
+      <FlatList
         data={[...searchResult.ingredients, ...searchResult.recipes]}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) =>
@@ -174,7 +180,7 @@ export default function Page1({
           )
         }
         ItemSeparatorComponent={() => <View className="h-2" />}
-      /> */}
+      />
     </KeyboardAvoidingView>
   );
 }

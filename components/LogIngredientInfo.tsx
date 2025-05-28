@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { Ingredient, InventoryIngredient, InventoryRecipe, NutritionFacts } from '~/types';
 import { Feather } from '@expo/vector-icons';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
@@ -41,6 +41,41 @@ function LogIngredientInfo({
   const [checkInventory, setCheckInventory] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const getCombinedNutritionData = (ingredient: Ingredient) => {
+    const regularNutrition = Object.keys(NUTRITIONAL_KEYS)
+      .filter(
+        (key) =>
+          ingredient[key as keyof typeof ingredient] !== null &&
+          ingredient[key as keyof typeof ingredient] !== undefined
+      )
+      .map((key) => {
+        const value = ingredient[key as keyof typeof ingredient];
+        const unit = NUTRITIONAL_UNITS[key as keyof typeof NUTRITIONAL_UNITS];
+        return {
+          type: 'regular',
+          key,
+          label: NUTRITIONAL_KEYS[key as keyof typeof NUTRITIONAL_KEYS],
+          value: value as number,
+          unit,
+        };
+      });
+
+    const extraNutrition = Object.keys(ingredient.extraNutrition || {})
+      .filter((key) => ingredient.extraNutrition?.[key])
+      .map((key) => {
+        const extra = ingredient.extraNutrition?.[key]!;
+        const unit = extra.unit === 'percent' ? '%' : extra.unit;
+        return {
+          type: 'extra',
+          key,
+          label: extra.label,
+          value: extra.value,
+          unit,
+        };
+      });
+    return [...regularNutrition, ...extraNutrition];
+  };
+
   // Validation effects would go here...
 
   const handleAdd = () => {
@@ -52,7 +87,7 @@ function LogIngredientInfo({
   };
 
   return (
-    <View className="mb-4 overflow-hidden rounded-xl bg-white shadow-sm shadow-gray-300">
+    <View className="mb-4 overflow-hidden rounded-md bg-white shadow-sm shadow-gray-300">
       {/* Header */}
       <TouchableOpacity
         className="flex-row items-center justify-between bg-gray-800 p-4"
@@ -61,7 +96,7 @@ function LogIngredientInfo({
         <View className="flex-row items-center">
           {!adding && (
             <TouchableOpacity
-              className="mr-3 rounded-lg bg-white px-3 py-1"
+              className="mr-3 rounded-md bg-white px-3 py-1"
               onPress={() => setAdding(true)}>
               <Text className="font-semibold text-gray-800">Add</Text>
             </TouchableOpacity>
@@ -93,41 +128,15 @@ function LogIngredientInfo({
             </View>
           </View>
 
-          <ScrollView>
-            {Object.keys(NUTRITIONAL_KEYS).map((key) => {
-              const value = ingredient[key as keyof typeof ingredient];
-              if (value === null || value === undefined) return null;
-
-              const unit = NUTRITIONAL_UNITS[key as keyof typeof NUTRITIONAL_UNITS];
-              return (
-                <View key={key} className="flex-row justify-between py-2">
-                  <Text className="text-gray-700">
-                    {NUTRITIONAL_KEYS[key as keyof typeof NUTRITIONAL_KEYS]}
-                  </Text>
-                  <Text className="text-gray-800">
-                    {value}
-                    {unit}
-                  </Text>
-                </View>
-              );
-            })}
-
-            {Object.keys(ingredient.extraNutrition || {}).map((key) => {
-              const extra = ingredient.extraNutrition?.[key];
-              if (!extra) return null;
-
-              const unit = extra.unit === 'percent' ? '%' : extra.unit;
-              return (
-                <View key={key} className="flex-row justify-between py-2">
-                  <Text className="text-gray-700">{extra.label}</Text>
-                  <Text className="text-gray-800">
-                    {extra.value}
-                    {unit}
-                  </Text>
-                </View>
-              );
-            })}
-          </ScrollView>
+          {getCombinedNutritionData(ingredient).map((item) => (
+            <View key={`${item.type}-${item.key}`} className="flex-row justify-between py-2">
+              <Text className="text-gray-700">{item.label}</Text>
+              <Text className="text-gray-800">
+                {item.value}
+                {item.unit}
+              </Text>
+            </View>
+          ))}
         </View>
       )}
 
@@ -135,7 +144,7 @@ function LogIngredientInfo({
       {adding && (
         <View className="p-4">
           {/* Toggle between containers/servings */}
-          <View className="mb-4 flex-row rounded-lg bg-gray-100 p-1">
+          <View className="mb-4 flex-row rounded-lg bg-gray-200 p-1">
             <TouchableOpacity
               className={`flex-1 rounded-md py-2 ${addType === 'containers' ? 'bg-gray-800' : ''}`}
               onPress={() => setAddType('containers')}>
@@ -211,7 +220,7 @@ function LogIngredientInfo({
           </View>
 
           {/* Action Buttons */}
-          <View className="flex-row space-x-3">
+          <View className="flex-row gap-3 ">
             <TouchableOpacity
               className="flex-1 rounded-lg border border-gray-300 py-3"
               onPress={() => {

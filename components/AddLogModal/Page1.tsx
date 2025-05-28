@@ -118,9 +118,7 @@ export default function Page1({
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-white p-4">
+    <View className="flex-1 p-4">
       <View className="mb-4">
         <Text className="mb-2 text-xl font-semibold text-gray-800">Meal</Text>
         <Dropdown
@@ -144,7 +142,7 @@ export default function Page1({
             value={search}
             onChangeText={setSearch}
             onSubmitEditing={searchItem}
-            className="flex-1 rounded-md border border-gray-300 p-3"
+            className="flex-1 rounded-md border border-gray-300 bg-white p-3"
             style={{ fontSize: 16 }}
           />
           <TouchableOpacity
@@ -158,6 +156,7 @@ export default function Page1({
       <FlatList
         data={[...searchResult.ingredients, ...searchResult.recipes]}
         keyExtractor={(item) => item.id}
+        keyboardShouldPersistTaps="handled"
         renderItem={({ item }) =>
           'ingredientList' in item ? (
             <LogRecipeInfo
@@ -181,6 +180,6 @@ export default function Page1({
         }
         ItemSeparatorComponent={() => <View className="h-2" />}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }

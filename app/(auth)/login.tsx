@@ -1,105 +1,80 @@
-import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  Alert,
-  StyleSheet,
-  View,
-  AppState,
-  TextInput,
-  Button,
-  Pressable,
-  Text,
-} from 'react-native';
+import { View, Text, TextInput, Pressable, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import { supabase } from '~/utils/supabase';
+import { Ionicons } from "@expo/vector-icons";
 
-// Tells Supabase Auth to continuously refresh the session automatically if
-// the app is in the foreground. When this is added, you will continue to receive
-// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
-// if the user's session is terminated. This should only be registered once.
-AppState.addEventListener('change', (state) => {
-  if (state === 'active') {
-    supabase.auth.startAutoRefresh();
-  } else {
-    supabase.auth.stopAutoRefresh();
-  }
-});
+export default function LoginScreen() {
+  const router = useRouter();
 
-export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function signInWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-
-    if (error) Alert.alert(error.message);
-    setLoading(false);
-  }
-
-  async function signUpWithEmail() {
-    setLoading(true);
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-
-    if (session !== null && session.user !== null) {
-      const { data, error } = await supabase
-        .from('users')
-        .insert([{ uid: session.user.id, email: session.user.email }]);
-      if (error) {
-        console.error('Error inserting data:', error.message);
-      } else {
-        console.log('Inserted data:', data);
-      }
-    }
-
-    if (error) Alert.alert(error.message);
-    if (!session) Alert.alert('Please check your inbox for email verification!');
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) alert(error.message);
     setLoading(false);
   }
 
   return (
-    <View className="flex-1 gap-3 bg-white p-5 pt-10">
-      <Stack.Screen options={{ title: 'Sign in' }} />
-      <TextInput
-        onChangeText={(text) => setEmail(text)}
-        value={email}
-        placeholder="email@address.com"
-        autoCapitalize={'none'}
-        className="rounded-md border border-gray-200 p-3"
-      />
+    <SafeAreaView className="flex-1">
+      <Stack.Screen options={{ title: 'Log in' }} />
+      <View className="p-4">
+        <View className="mb-4 flex justify-center items-center">
+          <Text className="text-3xl font-bold text-gray-900">Welcome Back 👋</Text>
+          <Text className="mt-1 text-base text-gray-600">Log in to your account</Text>
+        </View>
 
-      <TextInput
-        onChangeText={(text) => setPassword(text)}
-        value={password}
-        secureTextEntry={true}
-        placeholder="Password"
-        autoCapitalize={'none'}
-        className="rounded-md border border-gray-200 p-3"
-      />
+        <View className="flex-col gap-4">
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            className="rounded-lg border border-gray-300 p-4 bg-white"
+          />
 
-      <View className="flex-row gap-3">
-        <Pressable
-          className="flex-1 items-center rounded-md border-2 border-red-500 p-3 px-8"
-          onPress={() => signInWithEmail()}
-          disabled={loading}>
-          <Text className="text-lg font-bold text-red-500">Sign in</Text>
-        </Pressable>
-        <Pressable
-          className="flex-1 items-center rounded-md bg-red-500 p-3 px-8"
-          onPress={() => signUpWithEmail()}
-          disabled={loading}>
-          <Text className="text-lg font-bold text-white">Sign up</Text>
-        </Pressable>
+          <View className="relative">
+            <TextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              className="rounded-lg border border-gray-300 p-4 pr-12 bg-white"
+            />
+            <TouchableOpacity
+              className="absolute right-3 top-3"
+              onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={22} color="gray" />
+            </TouchableOpacity>
+          </View>
+
+          {/* <TouchableOpacity onPress={() => alert('TODO: Add forgot password flow')}>
+            <Text className="text-right text-sm text-blue-600">Forgot password?</Text>
+          </TouchableOpacity> */}
+
+          <Pressable
+            className="mt-4 items-center justify-center rounded-lg bg-gray-800 py-3"
+            onPress={signInWithEmail}
+            disabled={loading}>
+            <Text className="text-base font-semibold text-white">
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Text>
+          </Pressable>
+
+          <View className="flex-row justify-center pt-6">
+            <Text className="text-sm text-gray-500">Don't have an account?</Text>
+            <TouchableOpacity onPress={() => router.push('/signup')}>
+              <Text className="ml-1 text-sm font-medium text-gray-800">Sign up</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -15,8 +15,7 @@ export default function MealHistory({ userId, date }: MealHistoryProps) {
 
   useEffect(() => {
     const fetch = async () => {
-      const fetchHistory = await fetchUserDailyMealHistory(userId, '2025-04-20');
-      console.log(fetchHistory);
+      const fetchHistory = await fetchUserDailyMealHistory(userId, date.toLocaleDateString('en-CA'));
       setCurrentDailyMeal(fetchHistory);
     };
     fetch();

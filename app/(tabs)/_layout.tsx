@@ -229,8 +229,9 @@ export default function TabLayout() {
         visible={logModalVisible}
         onClose={() => setLogModalVisible(false)}
         onConfirm={() => {
-          console.log('hi');
+          setLogModalVisible(false);
         }}
+        date={new Date().toLocaleDateString('en-CA')}
       />
       <AddIngredientModal
         visible={ingredientModalVisible}

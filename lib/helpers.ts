@@ -1,14 +1,23 @@
-import { NUTRITIONAL_KEYS } from "~/constants/NUTRITIONAL_KEYS";
-import { Ingredient, NutritionFacts } from "~/types";
+import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
+import { Ingredient, InventoryIngredient, InventoryRecipe, NutritionFacts } from '~/types';
 
-const addNutrition = (
-  nutrition1: NutritionFacts,
-  nutrition2: NutritionFacts
-) => {
+const isInventoryIngredient = (
+  item: InventoryIngredient | InventoryRecipe
+): item is InventoryIngredient => {
+  return 'containers' in item && 'numberOfServings' in item && 'totalAmount' in item;
+};
+
+const isInventoryRecipe = (
+  item: InventoryIngredient | InventoryRecipe
+): item is InventoryRecipe => {
+  return !isInventoryIngredient(item);
+};
+
+const addNutrition = (nutrition1: NutritionFacts, nutrition2: NutritionFacts) => {
   Object.keys(NUTRITIONAL_KEYS).map((nutritionalKey) => {
     const key = nutritionalKey as keyof NutritionFacts;
 
-    if (key === "extraNutrition") return;
+    if (key === 'extraNutrition') return;
 
     const nutritionalValue = (nutrition2[key] as number | null) ?? 0;
 
@@ -32,7 +41,7 @@ const subtractNutrition = (
   Object.keys(NUTRITIONAL_KEYS).forEach((nutritionalKey) => {
     const key = nutritionalKey as keyof NutritionFacts;
 
-    if (key === "extraNutrition") return;
+    if (key === 'extraNutrition') return;
 
     const valueToSubtract = (nutrition2[key] as number | null) ?? 0;
     const currentValue = (nutrition1[key] as number | null) ?? 0;
@@ -53,9 +62,7 @@ const subtractNutrition = (
   return nutrition1;
 };
 
-const flattenNutritionFacts = (
-  nutritionFacts: NutritionFacts
-): Record<string, number> => {
+const flattenNutritionFacts = (nutritionFacts: NutritionFacts): Record<string, number> => {
   const { extraNutrition, ...baseFacts } = nutritionFacts;
 
   const extraFacts = Object.fromEntries(
@@ -134,30 +141,28 @@ const extractNutritionFacts = (ingredient: Ingredient): NutritionFacts => {
   };
 };
 
-const sumDailyNutrition = (
-  dailyEntry: Record<string, NutritionFacts>
-): NutritionFacts => {
+const sumDailyNutrition = (dailyEntry: Record<string, NutritionFacts>): NutritionFacts => {
   const NUTRITIONAL_KEYS = [
-    "calories",
-    "protein",
-    "totalFat",
-    "saturatedFat",
-    "polyunsaturatedFat",
-    "monounsaturatedFat",
-    "transFat",
-    "cholesterol",
-    "sodium",
-    "potassium",
-    "totalCarbohydrates",
-    "dietaryFiber",
-    "totalSugars",
-    "addedSugars",
-    "sugarAlcohols",
-    "vitaminA",
-    "vitaminC",
-    "vitaminD",
-    "calcium",
-    "iron",
+    'calories',
+    'protein',
+    'totalFat',
+    'saturatedFat',
+    'polyunsaturatedFat',
+    'monounsaturatedFat',
+    'transFat',
+    'cholesterol',
+    'sodium',
+    'potassium',
+    'totalCarbohydrates',
+    'dietaryFiber',
+    'totalSugars',
+    'addedSugars',
+    'sugarAlcohols',
+    'vitaminA',
+    'vitaminC',
+    'vitaminD',
+    'calcium',
+    'iron',
   ] as const;
 
   type NumericNutritionKey = (typeof NUTRITIONAL_KEYS)[number];
@@ -210,4 +215,6 @@ export {
   multiplyNutrition,
   extractNutritionFacts,
   sumDailyNutrition,
+  isInventoryIngredient,
+  isInventoryRecipe,
 };

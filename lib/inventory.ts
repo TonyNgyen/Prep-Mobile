@@ -1,6 +1,8 @@
 import { InventoryIngredient, InventoryRecipe, Recipe, UserInventory } from '~/types';
 import { supabase } from '~/utils/supabase';
 
+type ItemsToAdd = Record<string, InventoryIngredient | InventoryRecipe>;
+
 const fetchUserInventory = async (userId: string | undefined) => {
   try {
     const { data, error } = await supabase
@@ -77,7 +79,30 @@ const addRecipeToInventory = (
   return [true, 'Successful'];
 };
 
-const updateUserInventory = async (inventory: UserInventory, userId: string) => {
+const updateInventoryItem = async (
+  inventory: ItemsToAdd,
+  inventoryItem: InventoryIngredient | InventoryRecipe
+) => {
+  try {
+    if (inventoryItem.id in inventory) {
+      let currentInventoryItem = inventory[inventoryItem.id];
+      let updatedTotalAmount = currentInventoryItem.totalAmount - inventoryItem.totalAmount;
+      if (updatedTotalAmount == 0) {
+        delete inventory[inventoryItem.id];
+      } else {
+        inventory[inventoryItem.id].totalAmount = updatedTotalAmount;
+      }
+    } else {
+      inventory[inventoryItem.id] = inventoryItem;
+    }
+
+    return inventory;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateUserInventory = async (inventory: UserInventory, userId: string | undefined) => {
   try {
     const { error: updateError } = await supabase
       .from('users')
@@ -92,4 +117,20 @@ const updateUserInventory = async (inventory: UserInventory, userId: string) => 
   } catch (error) {}
 };
 
-export { fetchUserInventory, addIngredientToInventory, addRecipeToInventory, updateUserInventory };
+const updateUserInventoryItems = async (itemsToUpdate: ItemsToAdd, userId: string | undefined) => {
+  let inventory = await fetchUserInventory(userId);
+
+  for (const item of Object.values(itemsToUpdate)) {
+    inventory = await updateInventoryItem(inventory, item);
+  }
+  await updateUserInventory(inventory, userId);
+  return inventory;
+};
+
+export {
+  fetchUserInventory,
+  addIngredientToInventory,
+  addRecipeToInventory,
+  updateUserInventory,
+  updateUserInventoryItems,
+};

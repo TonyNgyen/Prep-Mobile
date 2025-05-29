@@ -14,6 +14,10 @@ import Page1 from './Page1';
 import Page2 from './Page2';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { addToUserNutritionalHistory } from '~/lib/nutrition';
+import { addToUserMealHistory } from '~/lib/meals';
+import { useAuth } from '~/contexts/AuthProvider';
+import { updateUserInventoryItems } from '~/lib/inventory';
 
 type ItemsToAdd = Record<string, InventoryIngredient | InventoryRecipe>;
 
@@ -21,9 +25,11 @@ type LogFoodFormProps = {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  date: string;
 };
 
-export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodFormProps) {
+export default function LogFoodForm({ visible, onClose, onConfirm, date }: LogFoodFormProps) {
+  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [meal, setMeal] = useState(undefined);
   const insets = useSafeAreaInsets();
@@ -52,6 +58,7 @@ export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodForm
     extraNutrition: {},
   });
   const [inventory, setInventory] = useState<ItemsToAdd>({});
+  const [logFood, setLogFood] = useState<ItemsToAdd>({});
 
   const addLogIngredient = (
     id: string,
@@ -63,7 +70,7 @@ export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodForm
     unit: string,
     type: string
   ) => {
-    setInventory((prev) => ({
+    setLogFood((prev) => ({
       ...prev,
       [id]: {
         id,
@@ -87,18 +94,29 @@ export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodForm
     unit: string,
     type: string
   ) => {
-    // setInventory((prev) => ({
-    //   ...prev,
-    //   [id]: {
-    //     id,
-    //     name,
-    //     servings,
-    //     servingSize,
-    //     totalAmount,
-    //     unit,
-    //     type,
-    //   },
-    // }));
+    setLogFood((prev) => {
+      if (prev[id]) {
+        return {
+          ...prev,
+          [id]: {
+            ...prev[id],
+            totalAmount: prev[id].totalAmount + totalAmount,
+          },
+        };
+      }
+      return {
+        ...prev,
+        [id]: {
+          id,
+          name,
+          servings,
+          servingSize,
+          totalAmount,
+          unit,
+          type,
+        },
+      };
+    });
   };
 
   const handleAlert = () => {
@@ -141,7 +159,7 @@ export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodForm
             <Feather name="x" size={24} color="black" />
           </Pressable>
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
-            Add Recipe
+            Log Food
           </Text>
           <Pressable
             onPress={() => {
@@ -159,28 +177,31 @@ export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodForm
             <Feather name="chevron-left" size={24} color="black" />
           </Pressable>
           <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
-            Add Recipe
+            Log Food
           </Text>
           <Pressable
-            onPress={() => {
-              handleAlert() && setPage(3);
+            onPress={async () => {
+              try {
+                if (!meal) {
+                  return;
+                }
+                await addToUserNutritionalHistory(date, nutrition, meal, user?.id);
+                await addToUserMealHistory(
+                  meal,
+                  {
+                    food: logFood,
+                  },
+                  date,
+                  user?.id
+                );
+                await updateUserInventoryItems(logFood, user?.id);
+                onConfirm();
+              } catch (error) {
+                console.error('Failed to log food:', error);
+              }
             }}
-            className="px-4 pb-3">
-            <Feather name="chevron-right" size={24} color="black" />
-          </Pressable>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <Pressable onPress={() => setPage(1)} className="px-4 pb-3">
-            <Feather name="chevron-left" size={24} color="black" />
-          </Pressable>
-          <Text className="absolute bottom-0 left-1/2 -translate-x-1/2 pb-3 text-lg font-semibold">
-            Add Recipe
-          </Text>
-          <Pressable onPress={() => console.log('Hi')} className="px-4 pb-3">
-            <Feather name="check" size={24} color="black" />
+            className="rounded-md bg-gray-800 px-4 py-2">
+            <Text className="text-center font-semibold text-white">Log Food</Text>
           </Pressable>
         </>
       );
@@ -212,7 +233,7 @@ export default function LogFoodForm({ visible, onClose, onConfirm }: LogFoodForm
                 setMeal={setMeal}
               />
             ) : (
-              <Page2 nutrition={nutrition} logFood={inventory} inventory={inventory} />
+              <Page2 nutrition={nutrition} logFood={logFood} inventory={inventory} />
             )}
           </View>
         </View>

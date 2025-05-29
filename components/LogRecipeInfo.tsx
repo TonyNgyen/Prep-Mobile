@@ -40,14 +40,205 @@ function LogRecipeInfo({
   const [checkInventory, setCheckInventory] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const getCombinedNutritionData = (recipe: Recipe) => {
+    const regularNutrition = Object.keys(NUTRITIONAL_KEYS)
+      .filter(
+        (key) =>
+          recipe[key as keyof typeof recipe] !== null &&
+          recipe[key as keyof typeof recipe] !== undefined
+      )
+      .map((key) => {
+        const value = recipe[key as keyof typeof recipe];
+        const unit = NUTRITIONAL_UNITS[key as keyof typeof NUTRITIONAL_UNITS];
+        return {
+          type: 'regular',
+          key,
+          label: NUTRITIONAL_KEYS[key as keyof typeof NUTRITIONAL_KEYS],
+          value: value as number,
+          unit,
+        };
+      });
+
+    const extraNutrition = Object.keys(recipe.extraNutrition || {})
+      .filter((key) => recipe.extraNutrition?.[key])
+      .map((key) => {
+        const extra = recipe.extraNutrition?.[key]!;
+        const unit = extra.unit === 'percent' ? '%' : extra.unit;
+        return {
+          type: 'extra',
+          key,
+          label: extra.label,
+          value: extra.value,
+          unit,
+        };
+      });
+    return [...regularNutrition, ...extraNutrition];
+  };
+
   // Validation and helper functions would go here...
 
+  const checkValidInput = () => {
+    if (addType == 'numberOfRecipes') {
+      if (!numberOfRecipes) {
+        setError('Please fill in the number of recipes');
+        return false;
+      }
+    } else {
+      if (!servingSize) {
+        setError('Please fill in the serving size');
+        return false;
+      }
+      if (!numberOfServings) {
+        setError('Please fill in the number of servings');
+        return false;
+      }
+    }
+    setError(null);
+    return true;
+  };
+  const handleAddServings = () => {
+    if (!numberOfServings) {
+      return;
+    }
+    add(
+      recipe.id,
+      recipe.name,
+      parseFloat(numberOfServings),
+      recipe.servingSize,
+      parseFloat(numberOfServings) * recipe.servingSize,
+      recipe.servingUnit
+    );
+  };
+
+  const handleAddRecipes = () => {
+    if (!numberOfRecipes || !recipe.servingSize) {
+      return;
+    }
+    add(
+      recipe.id,
+      recipe.name,
+      parseFloat(numberOfRecipes) * recipe.numberOfServings,
+      recipe.servingSize,
+      parseFloat(numberOfRecipes) * recipe.numberOfServings * recipe.servingSize,
+      recipe.servingUnit
+    );
+  };
+
+  const updateInventoryAmount = (total: number) => {
+    setInventory((prevInventory) => ({
+      ...prevInventory,
+      [recipe.id]: {
+        ...prevInventory[recipe.id],
+        totalAmount: prevInventory[recipe.id].totalAmount - total,
+      },
+    }));
+  };
+
+  const checkInventoryAmount = () => {
+    if (addType == 'numberOfRecipes') {
+      if (!numberOfRecipes) {
+        setError('Please fill in the number of recipes');
+        return false;
+      }
+      if (!inventory[recipe.id]) {
+        setError('Food not in inventory');
+        return false;
+      }
+      const total = parseFloat(numberOfRecipes) * recipe.servingSize * recipe.numberOfServings;
+      if (total > inventory[recipe.id].totalAmount) {
+        setError('Not enough amount in inventory');
+        return false;
+      }
+    } else {
+      if (!servingSize) {
+        setError('Please fill in the serving size');
+        return false;
+      }
+      if (!numberOfServings) {
+        setError('Please fill in the number of servings');
+        return false;
+      }
+      if (!inventory[recipe.id]) {
+        setError('Food not in inventory');
+        return false;
+      }
+      const total = parseFloat(servingSize) * parseFloat(numberOfServings);
+      if (total > inventory[recipe.id].totalAmount) {
+        setError('Not enough amount in inventory');
+        return false;
+      }
+    }
+    setError(null);
+    return true;
+  };
+
   const handleAdd = () => {
-    // Implementation would go here...
+    if (addType == 'numberOfRecipes') {
+      if (!numberOfRecipes) {
+        setError('Please fill in the number of recipes');
+        return false;
+      }
+      if (!checkValidInput()) {
+        return;
+      }
+      if (checkInventory) {
+        if (!checkInventoryAmount()) {
+          return;
+        }
+        const total = parseFloat(numberOfRecipes) * recipe.servingSize * recipe.numberOfServings;
+        updateInventoryAmount(total);
+      }
+      handleAddRecipes();
+    } else {
+      if (!servingSize) {
+        setError('Please fill in the serving size');
+        return;
+      }
+      if (!numberOfServings) {
+        setError('Please fill in the number of servings');
+        return;
+      }
+      if (checkInventory) {
+        if (!checkInventoryAmount()) {
+          return;
+        }
+        const total = parseFloat(servingSize) * parseFloat(numberOfServings);
+        updateInventoryAmount(total);
+      }
+      handleAddServings();
+    }
+    addNutrition();
   };
 
   const addNutrition = () => {
-    // Implementation would go here...
+    let multiplier;
+    if (addType == 'numberOfRecipes') {
+      multiplier = parseFloat(numberOfRecipes ?? 0) * recipe.numberOfServings;
+    } else {
+      multiplier =
+        (parseFloat(servingSize ?? 0) * parseFloat(numberOfServings ?? 0)) /
+        (recipe.servingSize * recipe.numberOfServings);
+    }
+    const newNutrition = { ...nutrition };
+
+    Object.keys(NUTRITIONAL_KEYS).map((nutritionalKey) => {
+      const key = nutritionalKey as keyof NutritionFacts;
+
+      if (key === 'extraNutrition') return;
+
+      const recipeValue = (recipe[key] as number | null) ?? 0;
+
+      newNutrition[key] += recipeValue * multiplier;
+    });
+    Object.keys(recipe.extraNutrition).map((key) => {
+      const recipeExtra = recipe.extraNutrition[key];
+
+      if (!newNutrition.extraNutrition[key]) {
+        newNutrition.extraNutrition[key] = { ...recipeExtra, value: 0 };
+      }
+      newNutrition.extraNutrition[key].value += recipeExtra.value * multiplier;
+    });
+    setNutrition(newNutrition);
   };
 
   return (
@@ -90,41 +281,15 @@ function LogRecipeInfo({
             </View>
           </View>
 
-          <ScrollView className="max-h-64">
-            {Object.keys(NUTRITIONAL_KEYS).map((key) => {
-              const value = recipe[key as keyof typeof recipe];
-              if (value === null || value === undefined) return null;
-
-              const unit = NUTRITIONAL_UNITS[key as keyof typeof NUTRITIONAL_UNITS];
-              return (
-                <View key={key} className="flex-row justify-between py-2">
-                  <Text className="text-gray-700">
-                    {NUTRITIONAL_KEYS[key as keyof typeof NUTRITIONAL_KEYS]}
-                  </Text>
-                  <Text className="text-gray-800">
-                    {value}
-                    {unit}
-                  </Text>
-                </View>
-              );
-            })}
-
-            {Object.keys(recipe.extraNutrition || {}).map((key) => {
-              const extra = recipe.extraNutrition?.[key];
-              if (!extra) return null;
-
-              const unit = extra.unit === 'percent' ? '%' : extra.unit;
-              return (
-                <View key={key} className="flex-row justify-between py-2">
-                  <Text className="text-gray-700">{extra.label}</Text>
-                  <Text className="text-gray-800">
-                    {extra.value}
-                    {unit}
-                  </Text>
-                </View>
-              );
-            })}
-          </ScrollView>
+          {getCombinedNutritionData(recipe).map((item) => (
+            <View key={`${item.type}-${item.key}`} className="flex-row justify-between py-2">
+              <Text className="text-gray-700">{item.label}</Text>
+              <Text className="text-gray-800">
+                {item.value}
+                {item.unit}
+              </Text>
+            </View>
+          ))}
         </View>
       )}
 

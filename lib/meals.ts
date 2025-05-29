@@ -2,7 +2,12 @@ import { IngredientMeal, InventoryIngredient, InventoryRecipe, Recipe, RecipeMea
 import { supabase } from '~/utils/supabase';
 import { searchIngredientById } from './ingredient';
 import { searchRecipeById } from './recipe';
-import { extractNutritionFacts, subtractNutrition } from './helpers';
+import {
+  extractNutritionFacts,
+  isInventoryIngredient,
+  isInventoryRecipe,
+  subtractNutrition,
+} from './helpers';
 
 type DailyMealEntry = {
   food: {
@@ -10,6 +15,8 @@ type DailyMealEntry = {
   };
   meal: string;
 };
+
+type ItemsToAdd = Record<string, InventoryIngredient | InventoryRecipe>;
 
 const fetchUserDailyMealHistory = async (userId: string | undefined, date: string) => {
   try {
@@ -32,7 +39,7 @@ const updateUserMealHistory = async (
   date: string,
   meal: string,
   information: DailyMealEntry,
-  userId: string
+  userId: string | undefined
 ) => {
   try {
     const { data, error } = await supabase
@@ -175,8 +182,65 @@ const deleteUserMealFromNutritionalHistory = async (
   }
 };
 
+const addToUserMealHistory = async (
+  meal: string,
+  information: {
+    food: ItemsToAdd;
+  },
+  date: string,
+  userId: string | undefined
+) => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('mealHistory')
+    .eq('uid', userId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching data:', error);
+    return;
+  }
+
+  const mealHistory = data?.mealHistory || {};
+  const mealsForDay = mealHistory[date];
+
+  if (!mealsForDay) {
+    updateUserMealHistory(date, meal, { ...information, meal: meal }, userId);
+    return;
+  }
+
+  const existingMealEntry: DailyMealEntry | undefined = mealHistory[date][meal];
+  if (existingMealEntry) {
+    Object.keys(information.food).forEach((id) => {
+      const foodItem = information.food[id];
+
+      if (id in existingMealEntry.food) {
+        const existingItem = existingMealEntry.food[id];
+
+        if (isInventoryIngredient(existingItem) && isInventoryIngredient(foodItem)) {
+          existingItem.containers += foodItem.containers;
+          existingItem.numberOfServings += foodItem.numberOfServings;
+          existingItem.totalAmount += foodItem.totalAmount;
+        } else if (isInventoryRecipe(existingItem) && isInventoryRecipe(foodItem)) {
+          existingItem.numberOfServings += foodItem.numberOfServings;
+          existingItem.totalAmount += foodItem.totalAmount;
+        }
+      } else {
+        existingMealEntry.food[id] = foodItem;
+      }
+    });
+
+    updateUserMealHistory(date, meal, existingMealEntry, userId);
+    return;
+  } else {
+    updateUserMealHistory(date, meal, { ...information, meal: meal }, userId);
+    return;
+  }
+};
+
 export {
   fetchUserDailyMealHistory,
   deleteUserMealFromMealHistory,
   deleteUserMealFromNutritionalHistory,
+  addToUserMealHistory,
 };

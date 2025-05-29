@@ -18,7 +18,7 @@ export default function Page2({ nutrition, logFood }: PageProps) {
   return (
     <View className="flex-1 bg-white p-4">
       <View className="mb-8">
-        <Text>Food To Log</Text>
+        <Text className="mb-2 text-xl font-semibold text-gray-800">Food To Log</Text>
         {foodArray.length > 0 ? (
           <FlatList
             data={foodArray}
@@ -39,7 +39,7 @@ export default function Page2({ nutrition, logFood }: PageProps) {
       </View>
 
       <View>
-        <Text>Nutrition Summary</Text>
+        <Text className="mb-2 text-xl font-semibold text-gray-800">Nutritional Summary</Text>
         <View className="rounded-md border-2 border-gray-800 p-4">
           {Object.keys(NUTRITIONAL_KEYS).map((key) => {
             const value = Number(nutrition[key]?.toFixed(2));

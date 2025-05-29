@@ -76,14 +76,173 @@ function LogIngredientInfo({
     return [...regularNutrition, ...extraNutrition];
   };
 
-  // Validation effects would go here...
+  const checkValidInput = () => {
+    if (addType == 'containers') {
+      if (!numberOfContainers) {
+        setError('Please fill in the number of containers');
+        return false;
+      }
+    } else {
+      if (!servingSize) {
+        setError('Please fill in the serving size');
+        return false;
+      }
+      if (!numberOfServings) {
+        setError('Please fill in the number of servings');
+        return false;
+      }
+    }
+    setError(null);
+    return true;
+  };
+
+  const updateInventoryAmount = (total: number) => {
+    setInventory((prevInventory) => ({
+      ...prevInventory,
+      [ingredient.id]: {
+        ...prevInventory[ingredient.id],
+        totalAmount: prevInventory[ingredient.id].totalAmount - total,
+      },
+    }));
+  };
+
+  const handleAddContainers = () => {
+    if (!numberOfContainers) {
+      return;
+    }
+    add(
+      ingredient.id,
+      ingredient.name,
+      parseFloat(numberOfContainers),
+      ingredient.servingSize,
+      ingredient.servingsPerContainer,
+      ingredient.servingSize * ingredient.servingsPerContainer * parseFloat(numberOfContainers),
+      ingredient.servingUnit
+    );
+  };
+
+  const handleAddServings = () => {
+    if (!servingSize || !numberOfServings) {
+      return;
+    }
+    add(
+      ingredient.id,
+      ingredient.name,
+      1,
+      parseFloat(servingSize),
+      parseFloat(numberOfServings),
+      parseFloat(servingSize) * parseFloat(numberOfServings),
+      ingredient.servingUnit
+    );
+  };
 
   const handleAdd = () => {
-    // Implementation would go here...
+    if (addType == 'containers') {
+      if (!numberOfContainers) {
+        setError('Please fill in the number of containers');
+        return;
+      }
+      if (!checkValidInput()) {
+        return;
+      }
+      if (checkInventory) {
+        if (!checkInventoryAmount()) {
+          return;
+        }
+        const total =
+          parseFloat(numberOfContainers) * ingredient.servingSize * ingredient.servingsPerContainer;
+        updateInventoryAmount(total);
+      }
+      handleAddContainers();
+    } else {
+      if (!servingSize) {
+        setError('Please fill in the serving size');
+        return;
+      }
+      if (!numberOfServings) {
+        setError('Please fill in the number of servings');
+        return;
+      }
+      if (checkInventory) {
+        if (!checkInventoryAmount()) {
+          return;
+        }
+        const total = parseFloat(servingSize) * parseFloat(numberOfServings);
+        updateInventoryAmount(total);
+      }
+      handleAddServings();
+    }
+    addNutrition();
+  };
+
+  const checkInventoryAmount = () => {
+    if (addType == 'containers') {
+      if (!numberOfContainers) {
+        setError('Please fill in the number of containers');
+        return false;
+      }
+      if (!inventory[ingredient.id]) {
+        setError('Food not in inventory');
+        return false;
+      }
+      const total =
+        parseFloat(numberOfContainers) * ingredient.servingSize * ingredient.servingsPerContainer;
+      if (total > inventory[ingredient.id].totalAmount) {
+        setError('Not enough amount in inventory');
+        return false;
+      }
+    } else {
+      if (!servingSize) {
+        setError('Please fill in the serving size');
+        return false;
+      }
+      if (!numberOfServings) {
+        setError('Please fill in the number of servings');
+        return false;
+      }
+      if (!inventory[ingredient.id]) {
+        setError('Food not in inventory');
+        return false;
+      }
+      const total = parseFloat(servingSize) * parseFloat(numberOfServings);
+      if (total > inventory[ingredient.id].totalAmount) {
+        setError('Not enough amount in inventory');
+        return false;
+      }
+    }
+    setError(null);
+    return true;
   };
 
   const addNutrition = () => {
-    // Implementation would go here...
+    let multiplier;
+    if (addType == 'containers') {
+      multiplier = parseFloat(numberOfContainers ?? 0) * ingredient.servingsPerContainer;
+    } else {
+      multiplier =
+        (parseFloat(servingSize ?? 0) * parseFloat(numberOfServings ?? 0)) / ingredient.servingSize;
+    }
+    const newNutrition = { ...nutrition };
+    Object.keys(NUTRITIONAL_KEYS).map((nutritionalKey) => {
+      const key = nutritionalKey as keyof NutritionFacts;
+
+      if (key === 'extraNutrition') return;
+
+      const ingredientValue = (ingredient[key] as number | null) ?? 0;
+
+      newNutrition[key] += ingredientValue * multiplier;
+    });
+    if (ingredient.extraNutrition != null) {
+      Object.keys(ingredient.extraNutrition).map((key) => {
+        const ingredientExtra = ingredient.extraNutrition[key];
+
+        if (!newNutrition.extraNutrition[key]) {
+          newNutrition.extraNutrition[key] = { ...ingredientExtra, value: 0 };
+        }
+        newNutrition.extraNutrition[key].value += ingredientExtra.value * multiplier;
+      });
+    }
+    setNutrition(newNutrition);
   };
 
   return (

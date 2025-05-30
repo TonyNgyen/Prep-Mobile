@@ -1,74 +1,116 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { ProgressChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native';
+import Svg, { Circle, G } from 'react-native-svg';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedProps,
+  Easing,
+} from 'react-native-reanimated';
+import { Circle as AnimatedCircle } from 'react-native-svg';
+import { Text, View } from 'react-native';
+
+const AnimatedCircleComponent = Animated.createAnimatedComponent(Circle);
 
 interface ProgressRingProps {
-  progress: number; // value between 0 and 1
-  label: string;
+  value: number;
+  progress: number;
+  label?: string;
   size?: number;
   strokeWidth?: number;
   color?: string;
+  backgroundColor?: string;
   textColor?: string;
   labelColor?: string;
+  animate?: boolean;
+  animationDuration?: number;
 }
 
-const screenWidth = Dimensions.get('window').width;
+const ProgressRing: React.FC<ProgressRingProps> = ({
+  value,
+  progress = 0.75,
+  label = '',
+  size = 88,
+  strokeWidth = 10,
+  color = '#FF6B6B',
+  backgroundColor = '#1E293B',
+  textColor = '#111827',
+  labelColor = '#6B7280',
+  animate = true,
+  animationDuration = 800,
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const progressValue = useSharedValue(animate ? 0 : progress);
 
-export default function ProgressRing({
-  progress,
-  label,
-  size = 140,
-  strokeWidth = 14,
-  color = 'rgba(30, 41, 59, 1)', // gray-800
-  textColor = '#1f2937', // gray-800
-  labelColor = '#475569', // gray-600
-}: ProgressRingProps) {
+  React.useEffect(() => {
+    if (animate) {
+      progressValue.value = withTiming(progress, {
+        duration: animationDuration,
+        easing: Easing.out(Easing.ease),
+      });
+    }
+  }, [progress, animate]);
+
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: circumference - progressValue.value * circumference,
+  }));
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ position: 'relative', height: size, width: size }}>
-        <ProgressChart
-          data={{ labels: [''], data: [progress] }}
-          width={size}
-          height={size}
-          strokeWidth={strokeWidth}
-          radius={(size - strokeWidth) / 2.5}
-          chartConfig={{
-            backgroundColor: 'rgba(0, 0, 0, 0)',
-            backgroundGradientFrom: 'rgba(0, 0, 0, 0)',
-            backgroundGradientTo: 'rgba(0, 0, 0, 0)',
-            decimalPlaces: 0,
-            color: () => color,
-            labelColor: () => 'rgba(0, 0, 0, 0)',
-          }}
-          hideLegend={true}
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0)' }}
-        />
-
+    <View className="items-center justify-center p-1">
+      <View style={{ width: size, height: size }}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <G rotation="-90" origin={`${size / 2}, ${size / 2}`}>
+            <Circle
+              cx="50%"
+              cy="50%"
+              r={radius}
+              stroke={backgroundColor}
+              strokeWidth={strokeWidth}
+              fill="transparent"
+              strokeOpacity={0.05}
+            />
+            <AnimatedCircleComponent
+              cx="50%"
+              cy="50%"
+              r={radius}
+              stroke={color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={circumference}
+              animatedProps={animatedProps}
+              strokeLinecap="round"
+              fill="transparent"
+              strokeOpacity={0.9}
+            />
+          </G>
+        </Svg>
         <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text style={{ fontSize: 20, fontWeight: '600', color: textColor }}>
-            {Math.round(progress * 100)}%
+          className="items-center justify-center"
+          style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}>
+          <Text
+            className="max-w-[90%] text-center font-bold"
+            style={{
+              color: textColor,
+              fontSize: size * 0.2,
+              lineHeight: size * 0.22,
+            }}
+            numberOfLines={1}
+            adjustsFontSizeToFit>
+            {value}
           </Text>
         </View>
       </View>
-
-      <Text
-        style={{
-          marginTop: 4,
-          fontSize: 14,
-          color: labelColor,
-        }}>
-        {label}
-      </Text>
+      {label && (
+        <Text
+          className="text-xs font-medium uppercase tracking-wider"
+          style={{
+            color: labelColor,
+            marginTop: size * 0.1,
+            letterSpacing: 0.5,
+          }}>
+          {label}
+        </Text>
+      )}
     </View>
   );
-}
+};
+
+export default ProgressRing;

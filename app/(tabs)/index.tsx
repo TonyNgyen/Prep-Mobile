@@ -18,12 +18,13 @@ export default function Home() {
         <Text className="text-4xl font-bold">Hello {profile?.firstName}</Text>
         <MaterialIcons name="account-circle" size={40} color="#1f2937" className="" />
       </View>
-
-      <Pressable onPress={() => setLogModalVisible(true)} className="rounded-lg bg-gray-800 p-5">
-        <Text className="text-2xl font-bold text-white">Log Food</Text>
-      </Pressable>
-      <View>
-        <HomeNutritionRings />
+      <View className="flex gap-4">
+        <Pressable onPress={() => setLogModalVisible(true)} className="rounded-md bg-gray-800 p-5">
+          <Text className="text-2xl font-bold text-white">Log Food</Text>
+        </Pressable>
+        <View>
+          <HomeNutritionRings />
+        </View>
       </View>
 
       <LogFoodForm

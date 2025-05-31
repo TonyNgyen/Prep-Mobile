@@ -15,14 +15,12 @@ import {
 } from 'react-native';
 import { NutritionFacts } from '~/types';
 import { format } from 'date-fns';
-import {
-  fetchUserDailyNutritionalHistory,
-  fetchUserNutritionalGoals,
-  updateUserNutritionalGoals,
-} from '~/lib/goals';
+import { fetchUserNutritionalGoals, updateUserNutritionalGoals } from '~/lib/goals';
 import { useAuth } from '~/contexts/AuthProvider';
 import GoalCard from '~/components/GoalCard';
 import Feather from '@expo/vector-icons/Feather';
+import { fetchUserDailyNutritionalHistory } from '~/lib/nutrition';
+import { flattenNutritionFacts, sumDailyNutrition } from '~/lib/helpers';
 
 export default function Goals() {
   const { user } = useAuth();
@@ -61,10 +59,22 @@ export default function Goals() {
   useEffect(() => {
     const fetch = async () => {
       const fetchGoals = await fetchUserNutritionalGoals(user?.id);
-      const fetchHistory = await fetchUserDailyNutritionalHistory(today, user?.id);
+      let dailyNutrition = await fetchUserDailyNutritionalHistory(today, user?.id);
+      const isDailyMeals =
+        dailyNutrition &&
+        typeof dailyNutrition === 'object' &&
+        !Array.isArray(dailyNutrition) &&
+        Object.values(dailyNutrition).every(
+          (val) => typeof val === 'object' && val !== null && 'calories' in val
+        );
+
+      if (isDailyMeals) {
+        dailyNutrition = sumDailyNutrition(dailyNutrition as Record<string, NutritionFacts>);
+        dailyNutrition = flattenNutritionFacts(dailyNutrition);
+      }
       setNutritionalGoals(fetchGoals);
       setOriginalGoals(fetchGoals);
-      setNutritionalHistory(fetchHistory);
+      setNutritionalHistory(dailyNutrition);
     };
     fetch();
   }, []);

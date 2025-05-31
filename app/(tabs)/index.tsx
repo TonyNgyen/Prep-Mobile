@@ -11,6 +11,7 @@ import HomeNutritionRings from '~/components/HomeNutritionRings';
 export default function Home() {
   const [logModalVisible, setLogModalVisible] = useState(false);
   const { user, profile } = useAuth();
+  console.log(profile);
   return (
     <View className="flex-1 p-4">
       <Stack.Screen options={{ title: 'Home' }} />

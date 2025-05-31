@@ -24,10 +24,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const getSessionAndInformation = async () => {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setSession(session);
-        setIsReady(true);
-      });
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
 
       if (session?.user) {
         const { data, error } = await supabase
@@ -35,7 +35,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           .select('firstName, lastName')
           .eq('uid', session.user.id)
           .single();
-        console.log(data)
 
         if (error) {
           console.error('Error fetching profile:', error);
@@ -44,10 +43,29 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      supabase.auth.onAuthStateChange((_event, session) => {
+      setIsReady(true);
+
+      supabase.auth.onAuthStateChange(async (_event, session) => {
         setSession(session);
+
+        if (session?.user) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('firstName, lastName')
+            .eq('uid', session.user.id)
+            .single();
+
+          if (error) {
+            console.error('Error fetching profile:', error);
+          } else {
+            setProfile(data);
+          }
+        } else {
+          setProfile(null);
+        }
       });
     };
+
     getSessionAndInformation();
   }, []);
 

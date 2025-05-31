@@ -4,14 +4,11 @@ import { Pressable, Text, View } from 'react-native';
 import LogFoodForm from '~/components/AddLogModal/container';
 import { useAuth } from '~/contexts/AuthProvider';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import ProgressRingExample from '~/components/progressRing';
-import ProgressRing from '~/components/progressRing';
 import HomeNutritionRings from '~/components/HomeNutritionRings';
 
 export default function Home() {
   const [logModalVisible, setLogModalVisible] = useState(false);
-  const { user, profile } = useAuth();
-  console.log(profile);
+  const { profile } = useAuth();
   return (
     <View className="flex-1 p-4">
       <Stack.Screen options={{ title: 'Home' }} />
@@ -23,9 +20,7 @@ export default function Home() {
         <Pressable onPress={() => setLogModalVisible(true)} className="rounded-md bg-gray-800 p-5">
           <Text className="text-2xl font-bold text-white">Log Food</Text>
         </Pressable>
-        <View>
-          <HomeNutritionRings />
-        </View>
+        <HomeNutritionRings />
       </View>
 
       <LogFoodForm

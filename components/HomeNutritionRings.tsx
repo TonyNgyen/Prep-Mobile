@@ -69,41 +69,72 @@ export default function HomeNutritionRings() {
 
   return (
     <View className="rounded-md bg-white py-5">
-      <Text className="mb-4 px-6 text-xl font-bold text-gray-900">Today's Nutrition</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingLeft: 24,
-          paddingRight: 12,
-        }}>
-        {ringData.map((ring, index) => (
-          <TouchableOpacity
-            key={index}
-            className="w-[110px] items-center shadow-sm"
-            activeOpacity={0.6}
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 3 },
-              shadowOpacity: 0.08,
-              shadowRadius: 6,
-              elevation: 4,
-            }}>
-            <ProgressRing
-              value={ring.value}
-              progress={ring.value / ring.target}
-              label={ring.label}
-              size={92}
-              color={ring.color}
-            />
-            {/* Optional target text */}
-            {/* <Text className="text-xs text-gray-500 mt-2 font-medium text-center leading-[14px]">
+      <Text className="mb-4 px-6 text-xl font-bold text-gray-900">Daily Goal Progress</Text>
+      {ringData.length <= 3 ? (
+        <View className="flex-row items-center justify-center">
+          {ringData.map((ring, index) => (
+            <TouchableOpacity
+              key={index}
+              className="w-[110px] items-center shadow-sm"
+              activeOpacity={0.6}
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.08,
+                shadowRadius: 6,
+                elevation: 4,
+              }}>
+              <ProgressRing
+                value={ring.value}
+                progress={ring.value / ring.target}
+                label={ring.label}
+                size={92}
+                color={ring.color}
+              />
+              {/* Optional target text */}
+              {/* <Text className="text-xs text-gray-500 mt-2 font-medium text-center leading-[14px]">
               {Math.round((ring.value / ring.target) * 100)}% of {ring.target}
               {ring.unit}
             </Text> */}
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingLeft: 24,
+            paddingRight: 12,
+          }}>
+          {ringData.map((ring, index) => (
+            <TouchableOpacity
+              key={index}
+              className="w-[110px] items-center shadow-sm"
+              activeOpacity={0.6}
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.08,
+                shadowRadius: 6,
+                elevation: 4,
+              }}>
+              <ProgressRing
+                value={ring.value}
+                progress={ring.value / ring.target}
+                label={ring.label}
+                size={92}
+                color={ring.color}
+              />
+              {/* Optional target text */}
+              {/* <Text className="text-xs text-gray-500 mt-2 font-medium text-center leading-[14px]">
+              {Math.round((ring.value / ring.target) * 100)}% of {ring.target}
+              {ring.unit}
+            </Text> */}
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }

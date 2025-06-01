@@ -5,6 +5,7 @@ import LogFoodForm from '~/components/AddLogModal/container';
 import { useAuth } from '~/contexts/AuthProvider';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import HomeNutritionRings from '~/components/HomeNutritionRings';
+import { WeightChart } from '~/components/WeightChart';
 
 export default function Home() {
   const [logModalVisible, setLogModalVisible] = useState(false);
@@ -21,6 +22,7 @@ export default function Home() {
           <Text className="text-2xl font-bold text-white">Log Food</Text>
         </Pressable>
         <HomeNutritionRings />
+        <WeightChart />
       </View>
 
       <LogFoodForm

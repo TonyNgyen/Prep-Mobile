@@ -33,4 +33,21 @@ const setUserWeightHistory = async (date: string, weight: number, userId: string
   }
 };
 
-export { setUserWeightHistory };
+const fetchUserWeightHistory = async (userId: string | undefined) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('weightHistory')
+      .eq('uid', userId)
+      .single();
+    if (!data) {
+      return {};
+    }
+    if (error) console.log(error);
+    return data['weightHistory'];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { setUserWeightHistory, fetchUserWeightHistory };

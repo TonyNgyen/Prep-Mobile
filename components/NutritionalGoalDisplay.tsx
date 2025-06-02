@@ -1,5 +1,7 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 
 type NutritionalGoalDisplayProps = {
   nutritionalValue: string;
@@ -7,11 +9,33 @@ type NutritionalGoalDisplayProps = {
   current: number;
 };
 
-export default function NutritionalGoalDisplay({ nutritionalValue, goal, current }: NutritionalGoalDisplayProps) {
+export default function NutritionalGoalDisplay({
+  nutritionalValue,
+  goal,
+  current,
+}: NutritionalGoalDisplayProps) {
   const remaining = goal - current;
-
+  const router = useRouter();
+  if (!goal) {
+    return (
+      <View className="rounded-b-md bg-white p-4 dark:bg-gray-900">
+        <Text className="text-center text-lg text-gray-400">
+          No goal set for {NUTRITIONAL_KEYS[nutritionalValue]}
+        </Text>
+        <View className=" mt-2 items-center">
+          <Pressable
+            className="rounded-md bg-gray-800 px-5 py-2"
+            onPress={() => {
+              router.push('/account/goals');
+            }}>
+            <Text className="text-lg text-white">Add Goal</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
   return (
-    <View className="bg-white p-4 dark:bg-gray-900 rounded-b-md">
+    <View className="rounded-b-md bg-white p-4 dark:bg-gray-900">
       {/* <Text className="mb-3 text-center text-base font-semibold text-gray-600 dark:text-gray-300">
         {nutritionalValue}
       </Text> */}

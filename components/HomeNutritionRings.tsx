@@ -69,14 +69,6 @@ export default function HomeNutritionRings() {
     fetch();
   }, []);
 
-  // const rings = [
-  //   { label: 'Calories', color: '#FF6B6B', target: 2000, value: 1440, unit: 'kcal' },
-  //   { label: 'Protein', color: '#4ECDC4', target: 150, value: 98, unit: 'g' },
-  //   { label: 'Carbs', color: '#45AFF2', target: 250, value: 207, unit: 'g' },
-  //   { label: 'Fat', color: '#FFD166', target: 70, value: 34, unit: 'g' },
-  //   { label: 'Fiber', target: 30, value: 27, unit: 'g' },
-  // ];
-
   return (
     <Pressable
       onPress={() => {

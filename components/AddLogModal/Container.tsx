@@ -25,14 +25,22 @@ type LogFoodFormProps = {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  date: string;
+  dateInput: Date;
+  mealInput: string | undefined;
 };
 
-export default function LogFoodForm({ visible, onClose, onConfirm, date }: LogFoodFormProps) {
+export default function LogFoodForm({
+  visible,
+  onClose,
+  onConfirm,
+  dateInput,
+  mealInput,
+}: LogFoodFormProps) {
   const { user } = useAuth();
   const [page, setPage] = useState(1);
-  const [meal, setMeal] = useState(undefined);
+  const [meal, setMeal] = useState(mealInput);
   const insets = useSafeAreaInsets();
+  const [date, setDate] = useState<Date | undefined>(dateInput);
   const nativeHeaderHeight = (Platform.OS === 'ios' ? 44 : 56) + insets.top;
   const [nutrition, setNutrition] = useState<NutritionFacts>({
     calories: 0,
@@ -182,7 +190,7 @@ export default function LogFoodForm({ visible, onClose, onConfirm, date }: LogFo
           <Pressable
             onPress={async () => {
               try {
-                if (!meal) {
+                if (!meal || !date) {
                   return;
                 }
                 await addToUserNutritionalHistory(date, nutrition, meal, user?.id);
@@ -231,6 +239,8 @@ export default function LogFoodForm({ visible, onClose, onConfirm, date }: LogFo
                 setInventory={setInventory}
                 meal={meal}
                 setMeal={setMeal}
+                date={date}
+                setDate={setDate}
               />
             ) : (
               <Page2 nutrition={nutrition} logFood={logFood} inventory={inventory} />

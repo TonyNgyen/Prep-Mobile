@@ -82,7 +82,7 @@ const deleteUserMealFromMealHistory = async (
   date: string,
   meal: string,
   foodId: string,
-  userId: string
+  userId: string | undefined
 ) => {
   try {
     const { data, error } = await supabase
@@ -122,7 +122,7 @@ const deleteUserMealFromNutritionalHistory = async (
   date: string,
   meal: string,
   food: IngredientMeal | RecipeMeal,
-  userId: string
+  userId: string | undefined
 ) => {
   try {
     let foodInformation;

@@ -114,15 +114,17 @@ export default function GoalCard({
 
       {isEditing && (
         <View className="mt-4">
-          <Text className="mb-2 text-sm text-gray-500">Progress Bar Color:</Text>
-
-          <ColorPicker style={{ width: '70%' }} value={color} onComplete={onSelectColor}>
-            {/* <Preview /> */}
-            <Panel1 />
-            <HueSlider />
-            {/* <OpacitySlider /> */}
-            {/* <Swatches /> */}
-          </ColorPicker>
+          <Text className="mb-4 text-sm text-gray-500">Progress Bar Color:</Text>
+          <View className="flex items-center">
+            <ColorPicker style={{ width: '70%' }} value={color} onComplete={onSelectColor}>
+              {/* <Preview /> */}
+              <Panel1 />
+              <View className='mb-2'></View>
+              <HueSlider />
+              {/* <OpacitySlider /> */}
+              {/* <Swatches /> */}
+            </ColorPicker>
+          </View>
         </View>
       )}
 

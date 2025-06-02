@@ -203,7 +203,7 @@ export default function LogPage({
             />
             <NutritionalGoalDisplay
               nutritionalValue={selectedNutritionalValue}
-              goal={nutritionalGoals?.[selectedNutritionalValue] ?? 0}
+              goal={nutritionalGoals?.[selectedNutritionalValue]}
               current={currentNutritionalValue ?? 0}
             />
           </View>

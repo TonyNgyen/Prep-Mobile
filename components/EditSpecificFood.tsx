@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { IngredientMeal, RecipeMeal } from '~/types';
 import { Feather } from '@expo/vector-icons';
-import { deleteUserMealFromMealHistory, deleteUserMealFromNutritionalHistory } from "~/lib/meals";
+import { deleteUserMealFromMealHistory, deleteUserMealFromNutritionalHistory } from '~/lib/meals';
+import { useAuth } from '~/contexts/AuthProvider';
 
 type EditSpecificFoodProps = {
   food: IngredientMeal | RecipeMeal;
@@ -14,7 +15,7 @@ export default function EditSpecificFood({ food, meal, date }: EditSpecificFoodP
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [amount, setAmount] = useState(food.totalAmount.toString());
-  
+  const { user } = useAuth();
 
   const unitLabel =
     food.unit === 'x' ? (parseFloat(amount) > 1 ? 'Servings' : 'Serving') : food.unit;
@@ -73,8 +74,8 @@ export default function EditSpecificFood({ food, meal, date }: EditSpecificFoodP
                   className="border-t border-gray-200 px-4 py-2"
                   onPress={() => {
                     setDropdownVisible(false);
-                    deleteUserMealFromMealHistory(date, meal, food.id);
-                    deleteUserMealFromNutritionalHistory(date, meal, food);
+                    deleteUserMealFromMealHistory(date, meal, food.id, user?.id);
+                    deleteUserMealFromNutritionalHistory(date, meal, food, user?.id);
                   }}>
                   <Text className="text-red-500">Delete</Text>
                 </TouchableOpacity>

@@ -7,6 +7,8 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { searchIngredientByName } from '~/lib/ingredient';
@@ -14,6 +16,7 @@ import { searchRecipeByName } from '~/lib/recipe';
 import { Ingredient, InventoryIngredient, InventoryRecipe, NutritionFacts, Recipe } from '~/types';
 import LogRecipeInfo from '../LogRecipeInfo';
 import LogIngredientInfo from '../LogIngredientInfo';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 type ItemsToAdd = Record<string, InventoryIngredient | InventoryRecipe>;
 
@@ -46,8 +49,10 @@ type PageProps = {
   setNutrition: React.Dispatch<React.SetStateAction<NutritionFacts>>;
   inventory: ItemsToAdd;
   setInventory: React.Dispatch<React.SetStateAction<ItemsToAdd>>;
-  meal: string;
-  setMeal: React.Dispatch<React.SetStateAction<string>>;
+  meal: string | undefined;
+  setMeal: React.Dispatch<React.SetStateAction<string | undefined>>;
+  date: Date | undefined;
+  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
 };
 
 const mealOptions = [
@@ -67,8 +72,12 @@ export default function Page1({
   setInventory,
   meal,
   setMeal,
+  date,
+  setDate,
 }: PageProps) {
   const [search, setSearch] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [searchResult, setSearchResult] = useState<SearchResultType>({
     recipes: [],
     ingredients: [],
@@ -120,6 +129,59 @@ export default function Page1({
   return (
     <View className="flex-1 p-4">
       <View className="mb-4">
+        <Text className="mb-2 text-xl font-semibold text-gray-900">Date</Text>
+        <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          className="rounded-md border border-gray-300 bg-white px-4 py-3">
+          <Text className="text-base text-gray-800" style={{ fontSize: 16 }}>
+            {date?.toLocaleDateString('en-US', {
+              weekday: 'short',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            }) ?? 'Pick a date'}
+          </Text>
+        </TouchableOpacity>
+
+        {showDatePicker && (
+          <Modal transparent animationType="fade" visible={showDatePicker}>
+            <TouchableWithoutFeedback onPress={() => setShowDatePicker(false)}>
+              <View className="flex-1 justify-center bg-black/40 px-6">
+                <TouchableWithoutFeedback>
+                  <View className="overflow-hidden rounded-md bg-white">
+                    <View className="p-4">
+                      <DateTimePicker
+                        value={date ?? new Date()}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={(_, selectedDate) => {
+                          if (Platform.OS !== 'ios') {
+                            setShowDatePicker(false);
+                          }
+                          if (selectedDate) {
+                            setDate(selectedDate);
+                          }
+                        }}
+                        minimumDate={new Date(2023, 0, 1)}
+                        maximumDate={new Date()}
+                        textColor={Platform.OS === 'ios' ? 'black' : undefined}
+                      />
+                      {Platform.OS === 'ios' && (
+                        <TouchableOpacity
+                          className="mt-4 rounded-md bg-gray-800 py-2"
+                          onPress={() => setShowDatePicker(false)}>
+                          <Text className="text-center font-semibold text-white">Done</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
+        )}
+      </View>
+      <View className="mb-4">
         <Text className="mb-2 text-xl font-semibold text-gray-800">Meal</Text>
         <Dropdown
           data={mealOptions}
@@ -138,11 +200,11 @@ export default function Page1({
         <Text className="mb-2 text-xl font-semibold text-gray-800">Food Name</Text>
         <View className="flex-row space-x-2">
           <TextInput
-            placeholder="e.g. Chicken Salad"
+            placeholder="e.g. Chicken"
             value={search}
             onChangeText={setSearch}
             onSubmitEditing={searchItem}
-            className="flex-1 rounded-md border border-gray-300 bg-white p-3"
+            className="flex-1 rounded-md border border-gray-300 bg-white p-3 placeholder:text-gray-300"
             style={{ fontSize: 16 }}
           />
           <TouchableOpacity

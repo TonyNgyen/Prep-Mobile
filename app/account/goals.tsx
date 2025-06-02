@@ -24,6 +24,7 @@ import { flattenNutritionFacts, sumDailyNutrition } from '~/lib/helpers';
 import { runOnJS } from 'react-native-reanimated';
 import ColorPicker, { HueSlider, Panel1 } from 'reanimated-color-picker';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const getUnsetGoalKeys = (
   allKeys: Record<string, string>,
@@ -31,6 +32,8 @@ const getUnsetGoalKeys = (
 ): string[] => {
   return Object.values(allKeys).filter((key) => !(key in userGoals));
 };
+
+const DEFAULT_GOAL_COLOR = '#1E293B';
 
 export default function Goals() {
   const { user } = useAuth();
@@ -65,8 +68,9 @@ export default function Goals() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalValue, setNewGoalValue] = useState('');
-  const [newGoalColor, setNewGoalColor] = useState('#1E293B'); // Default green
-  const [barPreviewColor, setBarPreviewColor] = useState('#1E293B');
+  const [newGoalColor, setNewGoalColor] = useState(DEFAULT_GOAL_COLOR); // Default green
+  const [barPreviewColor, setBarPreviewColor] = useState(DEFAULT_GOAL_COLOR);
+  let dropdownOptions;
 
   useEffect(() => {
     const fetch = async () => {
@@ -84,14 +88,20 @@ export default function Goals() {
         dailyNutrition = sumDailyNutrition(dailyNutrition as Record<string, NutritionFacts>);
         dailyNutrition = flattenNutritionFacts(dailyNutrition);
       }
-      const availableKeys = getUnsetGoalKeys(NUTRITIONAL_KEYS, fetchGoals);
-      console.log(availableKeys);
       setNutritionalGoals(fetchGoals);
       setOriginalGoals(fetchGoals);
       setNutritionalHistory(dailyNutrition);
     };
     fetch();
-  }, []);
+  }, [user?.id]);
+
+  if (Object.keys(nutritionalGoals).length != 0) {
+    const availableKeys = getUnsetGoalKeys(NUTRITIONAL_KEYS, nutritionalGoals);
+    dropdownOptions = availableKeys.map((key) => ({
+      label: key,
+      value: key,
+    }));
+  }
 
   const handleGoalChange = (nutrition: string, newValue: number, barColor: string) => {
     setNutritionalGoals((prev) => ({
@@ -129,6 +139,11 @@ export default function Goals() {
 
     if (isNaN(value)) {
       Alert.alert('Invalid Value', 'Please enter a numeric goal.');
+      return;
+    }
+
+    if (nutritionalGoals[name]) {
+      Alert.alert('Duplicate Goal', 'A goal with this name already exists.');
       return;
     }
 
@@ -216,13 +231,25 @@ export default function Goals() {
 
                   <View className="mb-4">
                     <Text className="mb-1 text-sm text-gray-600">Nutrition Name</Text>
-                    <TextInput
-                      placeholder="e.g. Protein"
-                      value={newGoalName}
-                      onChangeText={setNewGoalName}
-                      returnKeyType="next"
-                      className="rounded-lg border border-gray-300 px-4 py-3"
-                    />
+                    {dropdownOptions && (
+                      <Dropdown
+                        style={{
+                          borderWidth: 1,
+                          borderColor: '#D1D5DB', // Tailwind's gray-300
+                          borderRadius: 8,
+                          paddingHorizontal: 16,
+                          paddingVertical: 12,
+                        }}
+                        placeholderStyle={{ color: '#9CA3AF' }} // Tailwind's gray-400
+                        selectedTextStyle={{ color: '#111827' }} // Tailwind's gray-900
+                        data={dropdownOptions}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="Select nutrition"
+                        value={newGoalName}
+                        onChange={(item) => setNewGoalName(item.value)}
+                      />
+                    )}
                   </View>
 
                   <View className="mb-6">
@@ -251,7 +278,7 @@ export default function Goals() {
                     <View className="flex items-center gap-4">
                       <ColorPicker
                         style={{ width: '70%' }}
-                        value="#1E293B"
+                        value={DEFAULT_GOAL_COLOR}
                         onComplete={onSelectColor}>
                         {/* <Preview /> */}
                         <Panel1 />
@@ -265,7 +292,7 @@ export default function Goals() {
 
                   <Pressable
                     onPress={handleAddGoal}
-                    className="items-center rounded-xl bg-black p-4">
+                    className="items-center rounded-xl bg-gray-800 p-4">
                     <Text className="font-semibold text-white">Save</Text>
                   </Pressable>
                 </View>

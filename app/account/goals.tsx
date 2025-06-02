@@ -21,11 +21,21 @@ import GoalCard from '~/components/GoalCard';
 import Feather from '@expo/vector-icons/Feather';
 import { fetchUserDailyNutritionalHistory } from '~/lib/nutrition';
 import { flattenNutritionFacts, sumDailyNutrition } from '~/lib/helpers';
+import { runOnJS } from 'react-native-reanimated';
+import ColorPicker, { HueSlider, Panel1 } from 'reanimated-color-picker';
+import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
+
+const getUnsetGoalKeys = (
+  allKeys: Record<string, string>,
+  userGoals: Record<string, any>
+): string[] => {
+  return Object.values(allKeys).filter((key) => !(key in userGoals));
+};
 
 export default function Goals() {
   const { user } = useAuth();
-  const [nutritionalGoals, setNutritionalGoals] = useState<Record<string, number>>({});
-  const [originalGoals, setOriginalGoals] = useState<Record<string, number>>({});
+  const [nutritionalGoals, setNutritionalGoals] = useState<Record<string, Object>>({});
+  const [originalGoals, setOriginalGoals] = useState<Record<string, Object>>({});
   const [editingGoal, setEditingGoal] = useState<string | null>(null);
   const [nutritionalHistory, setNutritionalHistory] = useState<NutritionFacts>({
     calories: 0,
@@ -55,6 +65,8 @@ export default function Goals() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalValue, setNewGoalValue] = useState('');
+  const [newGoalColor, setNewGoalColor] = useState('#1E293B'); // Default green
+  const [barPreviewColor, setBarPreviewColor] = useState('#1E293B');
 
   useEffect(() => {
     const fetch = async () => {
@@ -72,6 +84,8 @@ export default function Goals() {
         dailyNutrition = sumDailyNutrition(dailyNutrition as Record<string, NutritionFacts>);
         dailyNutrition = flattenNutritionFacts(dailyNutrition);
       }
+      const availableKeys = getUnsetGoalKeys(NUTRITIONAL_KEYS, fetchGoals);
+      console.log(availableKeys);
       setNutritionalGoals(fetchGoals);
       setOriginalGoals(fetchGoals);
       setNutritionalHistory(dailyNutrition);
@@ -79,17 +93,17 @@ export default function Goals() {
     fetch();
   }, []);
 
-  const handleGoalChange = (nutrition: string, newValue: number) => {
+  const handleGoalChange = (nutrition: string, newValue: number, barColor: string) => {
     setNutritionalGoals((prev) => ({
       ...prev,
-      [nutrition]: newValue,
+      [nutrition]: { goal: newValue, color: barColor },
     }));
   };
 
-  const handleSaveGoal = async (nutrition: string, newValue: number) => {
+  const handleSaveGoal = async (nutrition: string, newValue: number, barColor: string) => {
     const updatedGoals = {
       ...nutritionalGoals,
-      [nutrition]: newValue,
+      [nutrition]: { goal: newValue, color: barColor },
     };
     const success = await updateUserNutritionalGoals(updatedGoals, user?.id);
     if (success) {
@@ -120,7 +134,7 @@ export default function Goals() {
 
     const updatedGoals = {
       ...nutritionalGoals,
-      [name]: value,
+      [name]: { goal: value, color: barPreviewColor },
     };
 
     const success = await updateUserNutritionalGoals(updatedGoals, user?.id);
@@ -131,6 +145,11 @@ export default function Goals() {
       setNewGoalName('');
       setNewGoalValue('');
     }
+  };
+
+  const onSelectColor = ({ hex }) => {
+    'worklet';
+    runOnJS(setBarPreviewColor)(hex);
   };
 
   return (
@@ -146,8 +165,11 @@ export default function Goals() {
         <FlatList
           data={Object.entries(nutritionalGoals)}
           keyExtractor={(item) => item[0]}
+          contentContainerStyle={{ gap: 10, paddingBottom: 120 }}
           renderItem={({ item }) => {
-            const [nutrition, goal] = item;
+            const nutrition = item[0];
+            const color = item[1]['color'];
+            const goal = item[1]['goal'];
             const current = nutritionalHistory[nutrition as keyof NutritionFacts] as number;
             return (
               <GoalCard
@@ -159,6 +181,7 @@ export default function Goals() {
                 onChange={handleGoalChange}
                 onSave={handleSaveGoal}
                 onCancel={handleCancelEdit}
+                color={color}
               />
             );
           }}
@@ -212,6 +235,32 @@ export default function Goals() {
                       returnKeyType="done"
                       className="rounded-lg border border-gray-300 px-4 py-3"
                     />
+                  </View>
+
+                  <View className="mb-6">
+                    <View className="mb-4">
+                      <Text className="mb-1 text-sm text-gray-600">Color</Text>
+                      <View className="mt-3 h-3 w-full overflow-hidden rounded-full bg-[#1E293B]/5">
+                        <View
+                          className="h-full rounded-full"
+                          style={{ width: `75%`, backgroundColor: barPreviewColor }}
+                        />
+                      </View>
+                    </View>
+
+                    <View className="flex items-center gap-4">
+                      <ColorPicker
+                        style={{ width: '70%' }}
+                        value="#1E293B"
+                        onComplete={onSelectColor}>
+                        {/* <Preview /> */}
+                        <Panel1 />
+                        <View className="mb-2"></View>
+                        <HueSlider />
+                        {/* <OpacitySlider /> */}
+                        {/* <Swatches /> */}
+                      </ColorPicker>
+                    </View>
                   </View>
 
                   <Pressable

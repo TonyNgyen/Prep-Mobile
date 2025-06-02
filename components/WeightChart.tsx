@@ -1,7 +1,8 @@
 import { useFont } from '@shopify/react-native-skia';
 import { format, subWeeks } from 'date-fns';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { CartesianChart, Line } from 'victory-native';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserWeightHistory } from '~/lib/weight';
@@ -68,9 +69,14 @@ export function WeightChart() {
   const [weightChartData, setWeightChartData] = useState<{ date: string; weight: number }[]>();
   const [last4Weeks, setLast4Weeks] = useState<string[]>([]);
   const { user } = useAuth();
+  const router = useRouter();
   useEffect(() => {
     const fetch = async () => {
       const fetchWeight = await fetchUserWeightHistory(user?.id);
+      if (!fetchWeight || Object.keys(fetchWeight).length == 0) {
+        setWeightChartData(fetchWeight);
+        return;
+      }
 
       const weightArray = Object.entries(fetchWeight).map(([date, weight]) => ({
         date,
@@ -79,7 +85,7 @@ export function WeightChart() {
 
       const dataToUse = getLast4Weeks(weightArray);
       setLast4Weeks(dataToUse.last4Weeks);
-      const convertedData = dataToUse.weightHistory.slice(0,20).map(({ date, weight }) => ({
+      const convertedData = dataToUse.weightHistory.slice(-20).map(({ date, weight }) => ({
         date: date,
         weight,
       }));
@@ -91,8 +97,8 @@ export function WeightChart() {
 
   if (weightChartData && last4Weeks.length > 0) {
     const weights = weightChartData.map((d) => d.weight);
-    const minY = Math.floor(Math.min(...weights) - 2);
-    const maxY = Math.ceil(Math.max(...weights) + 2);
+    const minY = Math.floor(Math.min(...weights) - 4);
+    const maxY = Math.ceil(Math.max(...weights) + 4);
     return (
       <View className="h-[300px] rounded-md bg-white p-5">
         <Text className="mb-4 text-xl font-bold text-gray-900">Weight Progress</Text>
@@ -101,15 +107,32 @@ export function WeightChart() {
           xKey="date"
           yKeys={['weight']}
           domain={{ y: [minY, maxY] }}
+          xAxis={{
+            font,
+            formatXLabel(label) {
+              return label.toString().substring(5);
+            },
+            tickValues: [
+              0,
+              Math.floor((weightChartData.length * 1) / 3),
+              Math.floor((weightChartData.length * 2) / 3),
+              Math.floor(weightChartData.length - 1),
+            ],
+          }}
           axisOptions={{
             font,
             formatXLabel(label) {
               return label.toString().substring(5);
             },
-            tickValues: {
-              x: [0, Math.floor((weightChartData.length * 2) / 4), Math.floor((weightChartData.length * 3) / 4)],
-              y: [0, 25, 50, 75, 100],
-            },
+            // tickValues: {
+            //   x: [
+            //     0,
+            //     Math.floor((weightChartData.length * 1) / 3),
+            //     Math.floor((weightChartData.length * 2) / 3),
+            //     Math.floor(weightChartData.length - 1 ),
+            //   ],
+            //   y: [],
+            // },
           }}>
           {({ points }) => <Line points={points.weight} color="#1F2937" strokeWidth={3} />}
         </CartesianChart>
@@ -117,8 +140,18 @@ export function WeightChart() {
     );
   }
   return (
-    <View>
-      <Text>Empty</Text>
+    <View className="rounded-md bg-white p-5">
+      <Text className="mb-4 text-xl font-bold text-gray-900">Weight Progress</Text>
+      <View className="items-center justify-center gap-4 py-10">
+        <Text className="text-center text-xl text-gray-400">There are no weights to show.</Text>
+        <Pressable
+          className="rounded-md bg-gray-800 px-4 py-2"
+          onPress={() => {
+            router.push('/weight');
+          }}>
+          <Text className="text-lg text-white">Add Weight</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

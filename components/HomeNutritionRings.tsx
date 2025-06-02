@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import ProgressRing from './progressRing';
 import { fetchUserDailyNutritionalHistory } from '~/lib/nutrition';
 import { useAuth } from '~/contexts/AuthProvider';
@@ -8,6 +8,7 @@ import { flattenNutritionFacts, sumDailyNutrition } from '~/lib/helpers';
 import { NutritionFacts } from '~/types';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
+import { useRouter } from 'expo-router';
 
 type NutritionRing = {
   label: string;
@@ -21,6 +22,7 @@ export default function HomeNutritionRings() {
   const today = new Date().toLocaleDateString('en-CA');
   const [ringData, setRingData] = useState<NutritionRing[]>([]);
   const { user } = useAuth();
+  const router = useRouter();
   useEffect(() => {
     const fetch = async () => {
       const nutritionGoals = await fetchUserNutritionalGoals(user?.id);
@@ -43,16 +45,24 @@ export default function HomeNutritionRings() {
 
       for (const key of Object.keys(nutritionGoals)) {
         const typedKey = key as keyof typeof NUTRITIONAL_KEYS;
-        const goalValue = nutritionGoals[key as keyof typeof nutritionGoals];
+        const goalValue = nutritionGoals[key as keyof typeof nutritionGoals]['goal'];
+        const colorValue = nutritionGoals[key as keyof typeof nutritionGoals]['color'];
         const actualValue = dailyNutrition?.[key] ?? 0;
-        if (key in NUTRITIONAL_KEYS) {
-          ringInformation.push({
-            label: NUTRITIONAL_KEYS[typedKey],
-            target: goalValue,
-            value: actualValue,
-            unit: NUTRITIONAL_UNITS[typedKey],
-          });
-        }
+        // if (key in NUTRITIONAL_KEYS) {
+        //   ringInformation.push({
+        //     label: NUTRITIONAL_KEYS[typedKey],
+        //     target: goalValue,
+        //     value: actualValue,
+        //     unit: NUTRITIONAL_UNITS[typedKey],
+        //   });
+        // }
+        ringInformation.push({
+          label: NUTRITIONAL_KEYS[typedKey] ? NUTRITIONAL_KEYS[typedKey] : typedKey,
+          target: goalValue,
+          value: actualValue,
+          unit: NUTRITIONAL_UNITS[typedKey],
+          color: colorValue,
+        });
       }
       setRingData(ringInformation);
     };
@@ -68,73 +78,79 @@ export default function HomeNutritionRings() {
   // ];
 
   return (
-    <View className="rounded-md bg-white py-5">
-      <Text className="mb-4 px-6 text-xl font-bold text-gray-900">Daily Goal Progress</Text>
-      {ringData.length <= 3 ? (
-        <View className="flex-row items-center justify-center">
-          {ringData.map((ring, index) => (
-            <TouchableOpacity
-              key={index}
-              className="w-[110px] items-center shadow-sm"
-              activeOpacity={0.6}
-              style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 3 },
-                shadowOpacity: 0.08,
-                shadowRadius: 6,
-                elevation: 4,
+    <Pressable
+      onPress={() => {
+        router.push('/account/goals');
+      }}>
+      <View className="rounded-md bg-white py-5">
+        <Text className="mb-4 px-6 text-xl font-bold text-gray-900">Daily Goal Progress</Text>
+        {ringData.length === 0 ? (
+          <View className="items-center justify-center gap-4 py-10">
+            <Text className="text-center text-xl text-gray-400">There are no goals to show.</Text>
+            <Pressable
+              className="rounded-md bg-gray-800 px-4 py-2"
+              onPress={() => {
+                router.push('/account/goals');
               }}>
-              <ProgressRing
-                value={ring.value}
-                progress={ring.value / ring.target}
-                label={ring.label}
-                size={92}
-                color={ring.color}
-              />
-              {/* Optional target text */}
-              {/* <Text className="text-xs text-gray-500 mt-2 font-medium text-center leading-[14px]">
-              {Math.round((ring.value / ring.target) * 100)}% of {ring.target}
-              {ring.unit}
-            </Text> */}
-            </TouchableOpacity>
-          ))}
-        </View>
-      ) : (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingLeft: 24,
-            paddingRight: 12,
-          }}>
-          {ringData.map((ring, index) => (
-            <TouchableOpacity
-              key={index}
-              className="w-[110px] items-center shadow-sm"
-              activeOpacity={0.6}
-              style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 3 },
-                shadowOpacity: 0.08,
-                shadowRadius: 6,
-                elevation: 4,
-              }}>
-              <ProgressRing
-                value={ring.value}
-                progress={ring.value / ring.target}
-                label={ring.label}
-                size={92}
-                color={ring.color}
-              />
-              {/* Optional target text */}
-              {/* <Text className="text-xs text-gray-500 mt-2 font-medium text-center leading-[14px]">
-              {Math.round((ring.value / ring.target) * 100)}% of {ring.target}
-              {ring.unit}
-            </Text> */}
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      )}
-    </View>
+              <Text className="text-lg text-white">Add Goal</Text>
+            </Pressable>
+          </View>
+        ) : ringData.length <= 3 ? (
+          <View className="flex-row items-center justify-center">
+            {ringData.map((ring, index) => (
+              <TouchableOpacity
+                key={index}
+                className="w-[110px] items-center shadow-sm"
+                activeOpacity={0.6}
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 3 },
+                  shadowOpacity: 0.08,
+                  shadowRadius: 6,
+                  elevation: 4,
+                }}>
+                <ProgressRing
+                  value={ring.value}
+                  progress={ring.value / ring.target}
+                  label={ring.label}
+                  size={92}
+                  color={ring.color}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingLeft: 24,
+              paddingRight: 12,
+            }}>
+            {ringData.map((ring, index) => (
+              <TouchableOpacity
+                key={index}
+                className="w-[110px] items-center shadow-sm"
+                activeOpacity={0.6}
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 3 },
+                  shadowOpacity: 0.08,
+                  shadowRadius: 6,
+                  elevation: 4,
+                }}>
+                <ProgressRing
+                  value={ring.value}
+                  progress={ring.value / ring.target}
+                  label={ring.label}
+                  size={92}
+                  color={ring.color}
+                />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+      </View>
+    </Pressable>
   );
 }

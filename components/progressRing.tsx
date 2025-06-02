@@ -78,7 +78,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
               animatedProps={animatedProps}
               strokeLinecap="round"
               fill="transparent"
-              strokeOpacity={0.9}
+              strokeOpacity={1}
             />
           </G>
         </Svg>

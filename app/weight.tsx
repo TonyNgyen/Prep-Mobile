@@ -17,10 +17,11 @@ import { useAuth } from '~/contexts/AuthProvider';
 export default function Weight() {
   const { user } = useAuth();
   const userId = user?.id;
+  const today = new Date().toLocaleDateString('en-CA').split('-');
   const [formData, setFormData] = useState({
-    day: '1',
-    month: '1',
-    year: String(new Date().getFullYear()),
+    day: today[2],
+    month: today[1],
+    year: today[0],
     weight: '0',
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -98,7 +99,7 @@ export default function Weight() {
 
           <Text className="mb-1 text-sm font-medium text-gray-600">Date</Text>
           <View className="mb-2 flex-row gap-3">
-            {['day', 'month', 'year'].map((field, idx) => (
+            {['month', 'day', 'year'].map((field, idx) => (
               <View key={idx} className="flex-1">
                 <Text className="mb-1 text-xs text-gray-500">
                   {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -117,7 +118,7 @@ export default function Weight() {
             ))}
           </View>
 
-          <Text className="mb-1 mt-2 text-sm font-medium text-gray-600">Weight (kg)</Text>
+          <Text className="mb-1 mt-2 text-sm font-medium text-gray-600">Weight (lbs)</Text>
           <TextInput
             keyboardType="decimal-pad"
             value={formData.weight}

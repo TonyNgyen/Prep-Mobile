@@ -34,9 +34,9 @@ export default function SpecificMeal({ meal, mealInformation, date }: SpecificMe
       {/* Header */}
       <View className="flex-row items-center justify-between rounded-t-xl bg-gray-200 px-3 py-2">
         <Text className="text-xl font-semibold">{capitalizedMeal}</Text>
-        {!editing && (
+        {!editing && hasFood && (
           <TouchableOpacity onPress={() => setEditing(true)}>
-            <Feather name="edit-3" size={20} color="#333" />
+            <Feather name="edit-2" size={20} color="#333" />
           </TouchableOpacity>
         )}
       </View>

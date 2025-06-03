@@ -4,15 +4,16 @@ import { Feather } from '@expo/vector-icons';
 import { SpecificMealEntry } from '~/types';
 import SpecificFood from './SpecificFood';
 import EditSpecificFood from './EditSpecificFood';
+import LogFoodForm from './AddLogModal/container';
 
 type SpecificMealProps = {
   meal: string;
   mealInformation: SpecificMealEntry | null;
-  date: string;
+  dateInput: Date;
 };
 
-export default function SpecificMeal({ meal, mealInformation, date }: SpecificMealProps) {
-  const [showAddForm, setShowAddForm] = useState(false);
+export default function SpecificMeal({ meal, mealInformation, dateInput }: SpecificMealProps) {
+  const [logModalVisible, setLogModalVisible] = useState(false);
   const [editing, setEditing] = useState(false);
 
   const capitalizedMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
@@ -49,7 +50,7 @@ export default function SpecificMeal({ meal, mealInformation, date }: SpecificMe
               !editing ? (
                 <SpecificFood key={idx} food={food} />
               ) : (
-                <EditSpecificFood key={idx} food={food} meal={meal} date={date} />
+                <EditSpecificFood key={idx} food={food} meal={meal} date={dateInput} />
               )
             )}
           </View>
@@ -57,7 +58,7 @@ export default function SpecificMeal({ meal, mealInformation, date }: SpecificMe
 
         {!editing ? (
           <TouchableOpacity
-            onPress={() => setShowAddForm(true)}
+            onPress={() => setLogModalVisible(true)}
             className={`text-md px-3 py-2 font-semibold ${
               hasFood ? 'border-t border-gray-300' : ''
             }`}>
@@ -76,6 +77,15 @@ export default function SpecificMeal({ meal, mealInformation, date }: SpecificMe
           </View>
         )}
       </View>
+      <LogFoodForm
+        visible={logModalVisible}
+        onClose={() => setLogModalVisible(false)}
+        onConfirm={() => {
+          setLogModalVisible(false);
+        }}
+        dateInput={dateInput}
+        mealInput={meal}
+      />
     </View>
   );
 }

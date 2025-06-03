@@ -5,21 +5,24 @@ import SpecificMeal from './SpecificMeal';
 
 type MealHistoryProps = {
   userId: string | undefined;
-  date: Date;
+  dateInput: Date;
 };
 
 const meals = ['breakfast', 'lunch', 'dinner', 'snack', 'miscellaneous'];
 
-export default function MealHistory({ userId, date }: MealHistoryProps) {
+export default function MealHistory({ userId, dateInput }: MealHistoryProps) {
   const [currentDailyMeal, setCurrentDailyMeal] = useState<Record<string, any>>();
 
   useEffect(() => {
     const fetch = async () => {
-      const fetchHistory = await fetchUserDailyMealHistory(userId, date.toLocaleDateString('en-CA'));
+      const fetchHistory = await fetchUserDailyMealHistory(
+        userId,
+        dateInput.toLocaleDateString('en-CA')
+      );
       setCurrentDailyMeal(fetchHistory);
     };
     fetch();
-  }, [date]);
+  }, [userId, dateInput]);
 
   return (
     <View style={styles.container}>
@@ -28,7 +31,7 @@ export default function MealHistory({ userId, date }: MealHistoryProps) {
           key={meal}
           meal={meal}
           mealInformation={currentDailyMeal ? currentDailyMeal[meal] : null}
-          date={date.toLocaleDateString('en-CA')}
+          dateInput={dateInput}
         />
       ))}
     </View>

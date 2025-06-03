@@ -1,5 +1,6 @@
-import { Stack } from "expo-router";
-import { Text, View } from 'react-native';
+import { Stack } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
+import { supabase } from '~/utils/supabase';
 
 export default function AccountSettings() {
   return (
@@ -11,7 +12,9 @@ export default function AccountSettings() {
           headerTintColor: 'black',
         }}
       />
-      <Text>Hi</Text>
+      <Pressable onPress={() => supabase.auth.signOut()}>
+        <Text>Sign Out</Text>
+      </Pressable>
     </View>
   );
 }

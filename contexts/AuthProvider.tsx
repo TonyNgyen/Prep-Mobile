@@ -13,6 +13,7 @@ interface AuthContextType {
 interface UserProfile {
   firstName: string;
   lastName: string;
+  profilePictureUrl: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,7 +33,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         const { data, error } = await supabase
           .from('users')
-          .select('firstName, lastName')
+          .select('firstName, lastName, profilePictureUrl')
           .eq('uid', session.user.id)
           .single();
 
@@ -51,7 +52,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           const { data, error } = await supabase
             .from('users')
-            .select('firstName, lastName')
+            .select('firstName, lastName, profilePictureUrl')
             .eq('uid', session.user.id)
             .single();
 

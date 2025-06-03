@@ -231,7 +231,8 @@ export default function TabLayout() {
         onConfirm={() => {
           setLogModalVisible(false);
         }}
-        date={new Date().toLocaleDateString('en-CA')}
+        dateInput={new Date()}
+        mealInput={undefined}
       />
       <AddIngredientModal
         visible={ingredientModalVisible}

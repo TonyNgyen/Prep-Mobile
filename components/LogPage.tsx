@@ -15,11 +15,12 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '~/contexts/AuthProvider';
 import { fetchUserDailyMealHistory } from '~/lib/meals';
 import { Dropdown } from 'react-native-element-dropdown';
-import { fetchUserDailyNutritionalHistory, fetchUserNutritionalGoals } from '~/lib/goals';
+import { fetchUserNutritionalGoals } from '~/lib/goals';
 import NutritionalGoalDisplay from '~/components/NutritionalGoalDisplay';
 import MealHistory from '~/components/MealHistory';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { UserInventory } from '~/types';
+import { fetchUserDailyNutritionalHistory } from '~/lib/nutrition';
 
 type LogPageProps = {
   isModal: boolean;
@@ -208,31 +209,11 @@ export default function LogPage({
             />
           </View>
 
-          <MealHistory userId={user?.id} date={selectedDate} />
+          <MealHistory userId={user?.id} dateInput={selectedDate} />
         </View>
       </View>
     );
   };
-
-  if (isModal) {
-    return (
-      <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 bg-[#f2f2f2]">
-            <View
-              className="relative flex w-full flex-row items-end justify-between border-b border-gray-200 bg-white"
-              style={{
-                paddingTop: insets.top,
-                height: nativeHeaderHeight,
-              }}>
-              {renderHeader()}
-            </View>
-            {renderBody()}
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    );
-  }
   return renderBody();
 }
 

@@ -8,7 +8,7 @@ import { useAuth } from '~/contexts/AuthProvider';
 type EditSpecificFoodProps = {
   food: IngredientMeal | RecipeMeal;
   meal: string;
-  date: string;
+  date: Date;
 };
 
 export default function EditSpecificFood({ food, meal, date }: EditSpecificFoodProps) {
@@ -74,8 +74,18 @@ export default function EditSpecificFood({ food, meal, date }: EditSpecificFoodP
                   className="border-t border-gray-200 px-4 py-2"
                   onPress={() => {
                     setDropdownVisible(false);
-                    deleteUserMealFromMealHistory(date, meal, food.id, user?.id);
-                    deleteUserMealFromNutritionalHistory(date, meal, food, user?.id);
+                    deleteUserMealFromMealHistory(
+                      date.toLocaleDateString('en-CA'),
+                      meal,
+                      food.id,
+                      user?.id
+                    );
+                    deleteUserMealFromNutritionalHistory(
+                      date.toLocaleDateString('en-CA'),
+                      meal,
+                      food,
+                      user?.id
+                    );
                   }}>
                   <Text className="text-red-500">Delete</Text>
                 </TouchableOpacity>

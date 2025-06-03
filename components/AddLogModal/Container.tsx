@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -41,6 +41,9 @@ export default function LogFoodForm({
   const [meal, setMeal] = useState(mealInput);
   const insets = useSafeAreaInsets();
   const [date, setDate] = useState<Date | undefined>(dateInput);
+  useEffect(() => {
+    setDate(dateInput);
+  }, [dateInput]);
   const nativeHeaderHeight = (Platform.OS === 'ios' ? 44 : 56) + insets.top;
   const [nutrition, setNutrition] = useState<NutritionFacts>({
     calories: 0,

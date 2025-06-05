@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
 import { Recipe } from '~/types';
@@ -11,6 +11,7 @@ type Props = {
 
 export default function RecipeListItem({ recipe }: Props) {
   const [open, setOpen] = useState(false);
+  const [showRecipe, setShowRecipe] = useState(false);
 
   return (
     <View className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
@@ -30,7 +31,12 @@ export default function RecipeListItem({ recipe }: Props) {
       {open && (
         <View className="rounded-b-md border-[3px] border-t-0 border-gray-800 bg-white p-4">
           <View className="mb-2 border-b-8 border-gray-800 pb-2">
-            <Text className="text-base">{recipe.numberOfServings} Servings Per Recipe</Text>
+            <View className="flex-row justify-between">
+              <Text className="text-base">{recipe.numberOfServings} Servings Per Recipe</Text>
+              <Pressable onPress={() => setShowRecipe(!showRecipe)}>
+                {showRecipe ? <Text>View Nutrients</Text> : <Text>View Recipe</Text>}
+              </Pressable>
+            </View>
           </View>
 
           <View className="gap-1">

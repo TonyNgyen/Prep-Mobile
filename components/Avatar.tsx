@@ -12,7 +12,6 @@ interface Props {
 export default function Avatar({ url, size = 150, onUpload }: Props) {
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const avatarSize = { height: size, width: size };
 
   useEffect(() => {
     if (url) downloadImage(url);
@@ -22,9 +21,7 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
     try {
       const { data, error } = await supabase.storage.from('profile-pictures').download(path);
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       const fr = new FileReader();
       fr.readAsDataURL(data);
@@ -57,26 +54,21 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
 
       const image = result.assets[0];
 
-      if (!image.uri) {
-        throw new Error('No image uri!');
-      }
+      if (!image.uri) throw new Error('No image uri!');
 
       const arraybuffer = await fetch(image.uri).then((res) => res.arrayBuffer());
 
-      const fileExt = image.uri?.split('.').pop()?.toLowerCase() ?? 'jpeg';
+      const fileExt = image.uri.split('.').pop()?.toLowerCase() ?? 'jpeg';
       const path = `${Date.now()}.${fileExt}`;
       const { data, error: uploadError } = await supabase.storage
         .from('profile-pictures')
         .upload(path, arraybuffer, {
           contentType: image.mimeType ?? 'image/jpeg',
         });
-      if (uploadError) {
-        throw uploadError;
-      }
 
-      if (data) {
-        downloadImage(path);
-      }
+      if (uploadError) throw uploadError;
+
+      if (data) downloadImage(path);
 
       onUpload(data.path);
     } catch (error) {
@@ -90,16 +82,23 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
     }
   }
 
+  const avatarStyle = {
+    height: size,
+    width: size,
+    borderRadius: size / 2,
+    overflow: 'hidden' as const,
+  };
+
   return (
     <View>
       {avatarUrl ? (
         <Image
           source={{ uri: avatarUrl }}
           accessibilityLabel="Avatar"
-          style={[avatarSize, styles.avatar, styles.image]}
+          style={[avatarStyle, styles.image]}
         />
       ) : (
-        <View style={[avatarSize, styles.avatar, styles.noImage]} />
+        <View style={[avatarStyle, styles.noImage]} />
       )}
       <View>
         <Button
@@ -113,20 +112,12 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
 }
 
 const styles = StyleSheet.create({
-  avatar: {
-    borderRadius: 5,
-    overflow: 'hidden',
-    maxWidth: '100%',
-  },
   image: {
-    objectFit: 'cover',
-    paddingTop: 0,
+    resizeMode: 'cover',
   },
   noImage: {
     backgroundColor: '#333',
     borderWidth: 1,
-    borderStyle: 'solid',
     borderColor: 'rgb(200, 200, 200)',
-    borderRadius: 5,
   },
 });

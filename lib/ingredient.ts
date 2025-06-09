@@ -43,6 +43,25 @@ const fetchIngredientsByName = async (name: string) => {
   }
 };
 
+const fetchFromListOfIngredientIds = async (ingredientIdList: string[]) => {
+  const { data, error } = await supabase.from('ingredients').select('*').in('id', ingredientIdList);
+
+  if (error) {
+    console.log('Error fetching ingredients:', error);
+    return {};
+  }
+
+  const ingredientMap = data.reduce(
+    (acc, ingredient) => {
+      acc[ingredient.id] = { name: ingredient.name, servingUnit: ingredient.servingUnit };
+      return acc;
+    },
+    {} as Record<string, (typeof data)[number]>
+  );
+
+  return ingredientMap;
+};
+
 const searchIngredientById = async (idSearch: string) => {
   const { data, error } = await supabase.from('ingredients').select().eq('id', idSearch).single();
   if (error) console.log(error);
@@ -62,6 +81,7 @@ const searchIngredientByName = async (ingredientSearch: string) => {
 export {
   fetchUserIngredients,
   fetchIngredientsByName,
+  fetchFromListOfIngredientIds,
   searchIngredientById,
   searchIngredientByName,
 };

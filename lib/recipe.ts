@@ -1,5 +1,6 @@
-import { NutritionFacts } from '~/types';
+import { Ingredient, NutritionFacts } from '~/types';
 import { supabase } from '~/utils/supabase';
+import { fetchFromListOfIngredientIds } from './ingredient';
 
 const fetchUserRecipes = async (userId: string | undefined) => {
   try {
@@ -35,6 +36,12 @@ const fetchRecipesByName = async (recipeSearch: string) => {
   const { data, error } = await supabase.from('recipes').select().eq('name', recipeSearch);
   if (error) console.log(error);
   return data;
+};
+
+const fetchRecipeIngredients = async (ingredientList: Record<string, Record<string, number>>) => {
+  const ingredientIdList = Object.keys(ingredientList);
+  const ingredientInformation = await fetchFromListOfIngredientIds(ingredientIdList);
+  return ingredientInformation;
 };
 
 const addRecipe = async (
@@ -95,4 +102,11 @@ const searchRecipeByName = async (recipeSearch: string) => {
   return data;
 };
 
-export { fetchUserRecipes, addRecipe, fetchRecipesByName, searchRecipeById, searchRecipeByName };
+export {
+  fetchUserRecipes,
+  fetchRecipeIngredients,
+  addRecipe,
+  fetchRecipesByName,
+  searchRecipeById,
+  searchRecipeByName,
+};

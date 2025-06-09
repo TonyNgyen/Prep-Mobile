@@ -204,12 +204,12 @@ export default function Page1({
             value={search}
             onChangeText={setSearch}
             onSubmitEditing={searchItem}
-            className="flex-1 rounded-md border border-gray-300 bg-white p-3 placeholder:text-gray-300"
+            className="flex-1 rounded-l-md border border-gray-300 bg-white p-3 placeholder:text-gray-300"
             style={{ fontSize: 16 }}
           />
           <TouchableOpacity
             onPress={searchItem}
-            className="justify-center rounded-md bg-gray-800 px-4">
+            className="justify-center rounded-r-md bg-gray-800 px-4">
             <Text className="font-semibold text-white">Search</Text>
           </TouchableOpacity>
         </View>

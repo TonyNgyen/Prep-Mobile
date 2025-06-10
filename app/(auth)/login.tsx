@@ -22,7 +22,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView className="flex-1">
       <Stack.Screen options={{ title: 'Log in' }} />
-      <View className="p-4">
+      <View className="p-10 pt-20">
         <View className="mb-4 flex justify-center items-center">
           <Text className="text-3xl font-bold text-gray-900">Welcome Back 👋</Text>
           <Text className="mt-1 text-base text-gray-600">Log in to your account</Text>

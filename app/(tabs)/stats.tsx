@@ -1,6 +1,9 @@
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { Stack } from 'expo-router';
 import React, { useState, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { ScreenContent } from '~/components/ScreenContent';
+import { supabase } from '~/utils/supabase';
 
 export default function Stats() {
   // const [facing, setFacing] = useState<CameraType>('back');
@@ -56,9 +59,16 @@ export default function Stats() {
   //   </View>
   // );
   return (
-    <View>
-      <Text>This is under development!</Text>
-    </View>
+    // <View>
+    //   <Text>This is under development!</Text>
+    // </View>
+    <>
+      <Stack.Screen options={{ title: 'Stats' }} />
+      <View style={styles.container}>
+        <ScreenContent path="app/(tabs)/stats.tsx" title="Stats" />
+        <Button title="Sign out" onPress={() => supabase.auth.signOut()} />
+      </View>
+    </>
   );
 }
 

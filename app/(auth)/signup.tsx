@@ -72,7 +72,7 @@ export default function SignUpScreen() {
     form.password === form.confirmPassword;
 
   return (
-    <ScrollView className="flex-1 p-4">
+    <ScrollView className="flex-1 p-10 pt-20">
       <Stack.Screen
         options={{
           title: 'Create Account',

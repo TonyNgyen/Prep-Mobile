@@ -12,8 +12,13 @@ export default function AccountSettings() {
           headerTintColor: 'black',
         }}
       />
-      <Pressable onPress={() => supabase.auth.signOut()}>
-        <Text>Sign Out</Text>
+      <Pressable
+        onPress={() => {
+          supabase.auth.signOut();
+          console.log('Signing out');
+        }}
+        className="">
+        <Text className="text-4xl font-bold">Sign Out</Text>
       </Pressable>
     </View>
   );

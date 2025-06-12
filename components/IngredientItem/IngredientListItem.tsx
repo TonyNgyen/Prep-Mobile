@@ -46,7 +46,7 @@ export default function IngredientListItem({ ingredient }: Props) {
                 <View key={key} className="flex-row justify-between">
                   <Text className="text-base">{NUTRITIONAL_KEYS[key]}</Text>
                   <Text className="text-base">
-                    {value}
+                    {value || 0}
                     {NUTRITIONAL_UNITS[key]}
                   </Text>
                 </View>

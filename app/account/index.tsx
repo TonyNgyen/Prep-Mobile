@@ -23,7 +23,6 @@ export default function Account() {
         }}
       />
 
-      {/* Profile Section */}
       <View className="items-center bg-white px-6 py-8">
         <Avatar
           url={profile?.profilePictureUrl}
@@ -44,7 +43,6 @@ export default function Account() {
         </TouchableOpacity>
       </View>
 
-      {/* Progress Overview */}
       <View className="mt-2 px-6">
         <Text className="mb-3 text-base font-semibold text-gray-800">Your Progress</Text>
         <View className="flex-row justify-between space-x-3">
@@ -54,7 +52,6 @@ export default function Account() {
         </View>
       </View>
 
-      {/* Settings Section */}
       <View className="mt-8 px-6">
         <Text className="mb-3 text-base font-semibold text-gray-800">Settings</Text>
         <SettingItem label="Theme" icon="sun" />
@@ -63,7 +60,6 @@ export default function Account() {
         <SettingItem label="Privacy" icon="lock" />
       </View>
 
-      {/* Support and Feedback */}
       <View className="mt-8 px-6">
         <Text className="mb-3 text-base font-semibold text-gray-800">Support</Text>
         <SettingItem label="Help Center" icon="help-circle" />
@@ -71,7 +67,6 @@ export default function Account() {
         <SettingItem label="Contact Support" icon="mail" />
       </View>
 
-      {/* Logout Button */}
       <View className="mt-10 px-6 pb-12">
         <TouchableOpacity onPress={handleLogout} className="items-center rounded-lg bg-red-100 p-3">
           <Text className="font-semibold text-red-500">Log Out</Text>

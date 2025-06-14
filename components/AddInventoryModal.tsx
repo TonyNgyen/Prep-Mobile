@@ -42,7 +42,6 @@ export default function AddInventoryModal({
   onConfirm,
   currentInventory,
 }: Props) {
-  // Local state for inventory, initialize with currentInventory if available
   const [localInventory, setLocalInventory] = useState<UserInventory | null>(
     currentInventory ?? null
   );
@@ -58,10 +57,9 @@ export default function AddInventoryModal({
   });
   const [foodToAdd, setFoodToAdd] = useState<ItemsToAdd>({});
 
-  // Fetch inventory if missing and modal just became visible
   useEffect(() => {
-    if (!visible) return; // only fetch on modal open
-    if (localInventory !== null) return; // already have it
+    if (!visible) return;
+    if (localInventory !== null) return;
 
     if (!userId) {
       alert('User ID missing, cannot load inventory');
@@ -96,10 +94,9 @@ export default function AddInventoryModal({
       return;
     }
 
-    // Update inventory by merging new items to add
     const updatedInventory: UserInventory = {
       ...localInventory,
-      ...foodToAdd, // or merge logic depending on your data shape
+      ...foodToAdd,
     };
 
     const success = await updateUserInventory(updatedInventory, userId);
@@ -107,13 +104,12 @@ export default function AddInventoryModal({
       onConfirm(updatedInventory);
       reset();
       onClose();
-      setLocalInventory(null); // clear local inventory on close, optionally
+      setLocalInventory(null);
     } else {
       alert('Failed to update inventory');
     }
   };
 
-  // Render loading spinner if inventory loading
   if (loadingInventory) {
     return (
       <Modal animationType="slide" transparent={false} visible={visible} onRequestClose={onClose}>
@@ -124,9 +120,6 @@ export default function AddInventoryModal({
       </Modal>
     );
   }
-
-  // Then your renderHeader(), addIngredient, addRecipe, renderPage remain mostly unchanged,
-  // just replace currentInventory references with localInventory.
 
   const renderHeader = () => {
     if (page == 'first') {

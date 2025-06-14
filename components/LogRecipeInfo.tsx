@@ -75,8 +75,6 @@ function LogRecipeInfo({
     return [...regularNutrition, ...extraNutrition];
   };
 
-  // Validation and helper functions would go here...
-
   const checkValidInput = () => {
     if (addType == 'numberOfRecipes') {
       if (!numberOfRecipes) {

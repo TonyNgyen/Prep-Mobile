@@ -68,7 +68,7 @@ export default function Goals() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newGoalName, setNewGoalName] = useState('');
   const [newGoalValue, setNewGoalValue] = useState('');
-  const [newGoalColor, setNewGoalColor] = useState(DEFAULT_GOAL_COLOR); // Default green
+  const [newGoalColor, setNewGoalColor] = useState(DEFAULT_GOAL_COLOR);
   const [barPreviewColor, setBarPreviewColor] = useState(DEFAULT_GOAL_COLOR);
   let dropdownOptions;
 
@@ -235,13 +235,13 @@ export default function Goals() {
                       <Dropdown
                         style={{
                           borderWidth: 1,
-                          borderColor: '#D1D5DB', // Tailwind's gray-300
+                          borderColor: '#D1D5DB',
                           borderRadius: 8,
                           paddingHorizontal: 16,
                           paddingVertical: 12,
                         }}
-                        placeholderStyle={{ color: '#9CA3AF' }} // Tailwind's gray-400
-                        selectedTextStyle={{ color: '#111827' }} // Tailwind's gray-900
+                        placeholderStyle={{ color: '#9CA3AF' }}
+                        selectedTextStyle={{ color: '#111827' }}
                         data={dropdownOptions}
                         labelField="label"
                         valueField="value"

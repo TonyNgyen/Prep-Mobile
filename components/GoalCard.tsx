@@ -37,13 +37,11 @@ export default function GoalCard({
   const formattedLabel = nutritionLabel.charAt(0).toUpperCase() + nutritionLabel.slice(1);
 
   const [localGoal, setLocalGoal] = useState(goal);
-  const [barColor, setBarColor] = useState(color); // Default gray-800
+  const [barColor, setBarColor] = useState(color);
   const [barPreviewColor, setBarPreviewColor] = useState(color);
-  // const selectedColor = useSharedValue(barColor);
 
   const onSelectColor = ({ hex }) => {
     'worklet';
-    // do something with the selected color.
     runOnJS(setBarPreviewColor)(hex);
   };
 

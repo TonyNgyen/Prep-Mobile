@@ -224,11 +224,6 @@ export default function AddIngredientModal({
         keyboardType="numeric"
         value={formData[field]?.toString() || ''}
         onChangeText={(v) => handleChange(field, v)}
-        // onFocus={() => {
-        //   if (scrollViewRef.current) {
-        //     scrollViewRef.current.scrollToEnd({ animated: true });
-        //   }
-        // }}
       />
     </View>
   );

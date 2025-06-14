@@ -130,7 +130,6 @@ const deleteUserMealFromNutritionalHistory = async (
     if (food.type === 'ingredient') {
       foodInformation = await searchIngredientById(food.id);
     } else if (food.type === 'recipe') {
-      // Make sure to handle recipes too if needed
       foodInformation = await searchRecipeById(food.id);
     }
 
@@ -158,7 +157,6 @@ const deleteUserMealFromNutritionalHistory = async (
 
     const updatedNutrition = subtractNutrition(mealNutrition, foodNutrition);
 
-    // Update the correct meal on the correct date
     const updatedNutritionalHistory = {
       ...nutritionalHistory,
       [date]: {

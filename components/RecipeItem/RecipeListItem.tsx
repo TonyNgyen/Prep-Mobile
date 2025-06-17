@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
 import { Recipe } from '~/types';

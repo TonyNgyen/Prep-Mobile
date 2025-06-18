@@ -3,9 +3,6 @@ import { View, Text, TextInput, Pressable } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import ColorPicker, {
   Panel1,
-  Swatches,
-  Preview,
-  OpacitySlider,
   HueSlider,
 } from 'reanimated-color-picker';
 import { runOnJS } from 'react-native-reanimated';

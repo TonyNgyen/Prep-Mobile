@@ -4,9 +4,6 @@ import {
   Text,
   Pressable,
   StyleSheet,
-  Modal,
-  TouchableWithoutFeedback,
-  Keyboard,
   Platform,
 } from 'react-native';
 import { format, addDays, isToday, isYesterday, isTomorrow } from 'date-fns';

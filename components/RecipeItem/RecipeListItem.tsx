@@ -56,7 +56,7 @@ export default function RecipeListItem({ recipe }: Props) {
               {showRecipe ? (
                 <Pressable
                   onPress={() => setShowRecipe(false)}
-                  className="min-w-[8.5rem] rounded-md bg-gray-800 px-2 py-1">
+                  className="min-w-[8.5rem] rounded-md bg-gray-800 px-2 py-2">
                   <Text className="text-center font-semibold text-white">View Nutrients</Text>
                 </Pressable>
               ) : (
@@ -65,7 +65,7 @@ export default function RecipeListItem({ recipe }: Props) {
                     setShowRecipe(true);
                     fetchIngredientList();
                   }}
-                  className="min-w-[8.5rem] rounded-md bg-gray-800 px-2 py-1">
+                  className="min-w-[8.5rem] rounded-md bg-gray-800 px-2 py-2">
                   <Text className="text-center font-semibold text-white">View Recipe</Text>
                 </Pressable>
               )}
@@ -95,7 +95,7 @@ export default function RecipeListItem({ recipe }: Props) {
               <View className="mb-2 flex-row items-center gap-2">
                 <Pressable
                   onPress={() => setShowPerServing(true)}
-                  className={`rounded-md px-3 py-1 ${
+                  className={`rounded-md px-3 py-2 ${
                     showPerServing ? 'bg-gray-800' : 'bg-gray-300'
                   }`}>
                   <Text
@@ -105,7 +105,7 @@ export default function RecipeListItem({ recipe }: Props) {
                 </Pressable>
                 <Pressable
                   onPress={() => setShowPerServing(false)}
-                  className={`rounded-md px-3 py-1 ${
+                  className={`rounded-md px-3 py-2 ${
                     !showPerServing ? 'bg-gray-800' : 'bg-gray-300'
                   }`}>
                   <Text

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import { Ingredient } from '~/types';
 import { NUTRITIONAL_KEYS } from '~/constants/NUTRITIONAL_KEYS';
 import { NUTRITIONAL_UNITS } from '~/constants/NUTRITIONAL_UNITS';
@@ -66,6 +66,17 @@ export default function IngredientListItem({ ingredient }: Props) {
                 </View>
               );
             })}
+          </View>
+          <View className="flex-row justify-between">
+            <View></View>
+            <View className="mt-2 flex-row gap-4">
+              <Pressable className="min-w-24 bg-gray-800 py-2 rounded-md">
+                <Text className="text-center font-semibold text-white">Edit</Text>
+              </Pressable>
+              <Pressable className="min-w-24 bg-red-800 py-2 rounded-md">
+                <Text className="text-center font-semibold text-white">Delete</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
       )}

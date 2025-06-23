@@ -78,10 +78,26 @@ const searchIngredientByName = async (ingredientSearch: string) => {
   return data;
 };
 
+const deleteUserIngredient = async (userId: string | undefined, ingredientId: string) => {
+  const { data, error } = await supabase.rpc('remove_ingredient', {
+    user_id: userId,
+    ingredient_id: ingredientId,
+  });
+
+  if (error) {
+    console.error('Error removing ingredient:', error);
+  } else if (data) {
+    console.log('Ingredient removed successfully.');
+  } else {
+    console.log('User not found or no update made.');
+  }
+};
+
 export {
   fetchUserIngredients,
   fetchIngredientsByName,
   fetchFromListOfIngredientIds,
   searchIngredientById,
   searchIngredientByName,
+  deleteUserIngredient,
 };

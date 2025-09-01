@@ -19,17 +19,6 @@ export default function SpecificMeal({ meal, mealInformation, dateInput }: Speci
   const capitalizedMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
   const hasFood = mealInformation && Object.keys(mealInformation.food).length !== 0;
 
-  // if (showAddForm) {
-  //   return (
-  //     <LogFoodForm
-  //       dateInput={date}
-  //       mealInput={meal}
-  //       isForm={true}
-  //       setShowAddForm={setShowAddForm}
-  //     />
-  //   );
-  // }
-
   return (
     <View className="mb-3 overflow-hidden rounded-xl shadow-sm">
       {/* Header */}

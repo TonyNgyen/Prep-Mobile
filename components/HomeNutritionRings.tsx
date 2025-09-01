@@ -48,14 +48,6 @@ export default function HomeNutritionRings() {
         const goalValue = nutritionGoals[key as keyof typeof nutritionGoals]['goal'];
         const colorValue = nutritionGoals[key as keyof typeof nutritionGoals]['color'];
         const actualValue = dailyNutrition?.[key] ?? 0;
-        // if (key in NUTRITIONAL_KEYS) {
-        //   ringInformation.push({
-        //     label: NUTRITIONAL_KEYS[typedKey],
-        //     target: goalValue,
-        //     value: actualValue,
-        //     unit: NUTRITIONAL_UNITS[typedKey],
-        //   });
-        // }
         ringInformation.push({
           label: NUTRITIONAL_KEYS[typedKey] ? NUTRITIONAL_KEYS[typedKey] : typedKey,
           target: goalValue,

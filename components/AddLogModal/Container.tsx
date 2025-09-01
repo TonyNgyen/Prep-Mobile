@@ -131,18 +131,10 @@ export default function LogFoodForm({
 
   const handleAlert = () => {
     if (page == 1) {
-      // if (name == '' || servingSize == '' || numberOfServings == '') {
-      //   alert('Please fill in all fields!');
-      //   return false;
-      // }
       return true;
     }
 
     if (page == 2) {
-      // if (Object.entries(ingredientInformation).length == 0) {
-      //   alert('Please add an ingredient!');
-      //   return false;
-      // }
       return true;
     }
   };
@@ -163,7 +155,6 @@ export default function LogFoodForm({
           <Pressable
             onPress={() => {
               onClose();
-              // reset();
             }}
             className="px-4 pb-3">
             <Feather name="x" size={24} color="black" />

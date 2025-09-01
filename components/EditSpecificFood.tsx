@@ -27,7 +27,6 @@ export default function EditSpecificFood({ food, meal, date }: EditSpecificFoodP
 
   const handleSave = () => {
     setIsEditing(false);
-    // Here you might want to trigger an update function
     console.log('Saved amount:', amount);
   };
 

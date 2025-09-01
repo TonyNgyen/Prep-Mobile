@@ -124,15 +124,6 @@ export function WeightChart() {
             formatXLabel(label) {
               return label.toString().substring(5);
             },
-            // tickValues: {
-            //   x: [
-            //     0,
-            //     Math.floor((weightChartData.length * 1) / 3),
-            //     Math.floor((weightChartData.length * 2) / 3),
-            //     Math.floor(weightChartData.length - 1 ),
-            //   ],
-            //   y: [],
-            // },
           }}>
           {({ points }) => <Line points={points.weight} color="#1F2937" strokeWidth={3} />}
         </CartesianChart>
